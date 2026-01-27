@@ -1,0 +1,38 @@
+{
+  "name": "portal-glow-mock",
+  "version": "1.0.0",
+  "description": "Portal Glow",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "node ./node_modules/typescript/bin/tsc",
+    "copy": "copyfiles --flat assets/index.html dist",
+    "execute": "node dist/index.js",
+    "start": "npm run build && npm run execute",
+    "docker": "npm run build && npm run copy",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vkirankumar/portal-glow-mock.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vkirankumar/portal-glow-mock/issues"
+  },
+  "homepage": "https://github.com/vkirankumar/portal-glow-mock#readme",
+  "devDependencies": {
+    "@types/node": "^25.0.8",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "yaml-lint": "^1.7.0"
+  },
+  "dependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.13.11",
+    "copyfiles": "^2.4.1",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1"
+  }
+}
