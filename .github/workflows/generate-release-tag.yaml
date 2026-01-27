@@ -1,0 +1,24 @@
+name: Generate release tag
+
+on:
+  workflow_call:
+    outputs:
+      release_tag:
+        description: 'The unique release tag'
+        value: ${{ jobs.generate-tag.outputs.release_tag }}
+
+jobs:
+  generate-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{ steps.vars.outputs.release_tag }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate input
+        id: vars
+        run: |
+            FULL_HASH=$(git rev-parse --short HEAD)
+            echo "release_tag=$FULL_HASH" >> $GITHUB_OUTPUT
