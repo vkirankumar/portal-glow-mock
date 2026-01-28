@@ -97,7 +97,7 @@ jobs:
                     run_id: runId
                 });
 
-                const jobData = data.jobs.slice(0, jobs.length - 1);
+                const jobData = data.jobs.slice(0, data.jobs.length - 1);
                 const jobs = jobData.map(j => ({
                     name: j.name,
                     status: j.status,
