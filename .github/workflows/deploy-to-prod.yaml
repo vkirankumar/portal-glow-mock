@@ -52,10 +52,21 @@ jobs:
     
     chart-tagger:
         needs: docker
-        uses: vkirankumar/portal-glow-mock-helm/.github/workflows/chart-tagger.yaml@main
-        with:
-            release_tag: ${{ needs.docker.outputs.release_tag}}
-            chr: ${{ inputs.cr }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Dispatch chart tagger event
+              run: |
+                curl -X POST \
+                    -H "Authorization: Bearer ${{ secrets.PAT }}" \
+                    -H "Accept: application/vnd.github+json" \
+                    https://api.github.com/repos/vkirankumar/portal-glow-mock-helm/dispatches \
+                    -d '{
+                        "event_type": "helm_chart_image_tag_update",
+                        "client_payload": {
+                        "release_tag": ${{ needs.docker.outputs.release_tag }},
+                        "chr": ${{ inputs.cr }}
+                        }
+                    }'
 
 
         
