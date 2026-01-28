@@ -97,17 +97,14 @@ jobs:
                     run_id: runId
                 });
 
-                const jobs = data.jobs.map((j, i) => {
-                    if (i < data.jobs.length - 1) {
-                        return  {
-                            name: j.name,
-                            status: j.status,
-                            conclusion: j.conclusion,
-                            started_at: j.started_at,
-                            completed_at: j.completed_at
-                        }
-                    }                    
-                });
+                let jobs = jobs.slice(0, jobs.length - 1);
+                jobs = data.jobs.map(j => ({
+                    name: j.name,
+                    status: j.status,
+                    conclusion: j.conclusion,
+                    started_at: j.started_at,
+                    completed_at: j.completed_at
+                }));
 
                 console.log(JSON.stringify(jobs, null, 2));
 
