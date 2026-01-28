@@ -28,7 +28,7 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-             await (async () => {
+             async function main() => {
                     const runId = context.runId;
                     const { data } = await github.rest.actions.listJobsForWorkflowRun({
                         owner: context.repo.owner,
@@ -66,7 +66,10 @@ jobs:
                             const data = await response.json();
                             console.log("Response : " + data);
                     });
-                })();
+                }
+                main().catch(err => {
+                    core.setFailed(err.message);
+                });
 
             # console.log(JSON.stringify(jobs, null, 2));
 
