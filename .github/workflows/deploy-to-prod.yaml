@@ -51,11 +51,12 @@ jobs:
           run: echo "release_tag=${{ needs.generate-release-tag.outputs.release_tag }}" >> "$GITHUB_OUTPUT"
     
     chart-tagger:
-        needs: docker
+        needs: [ generate-release-tag, docker ]
         runs-on: ubuntu-latest
         steps:
             - name: Dispatch chart tagger event
               run: |
+                echo "release_tag=${{ needs.generate-release-tag.outputs.release_tag }}"
                 curl -X POST \
                     -H "Authorization: Bearer ${{ secrets.CLASSIC_PAT_CROSS_REPO }}" \
                     -H "Accept: application/vnd.github+json" \
@@ -63,7 +64,7 @@ jobs:
                     -d '{
                         "event_type": "helm_chart_image_tag_update",
                         "client_payload": {
-                        "release_tag": "${{ needs.docker.outputs.release_tag }}",
+                        "release_tag": "${{ needs.generate-release-tag.outputs.release_tag }}",
                         "chr": "${{ inputs.cr }}",
                         "release_note": "${{ inputs.release_note }}"
                         }
