@@ -28,6 +28,7 @@ jobs:
           ELASTIC_HOST: ${{ secrets.ELASTIC_HOST }}
           ELASTIC_KEY: ${{ secrets.ELASTIC_KEY }}
           RELEASE_TAG: ${{ inputs.release_tag }}
+          ACTOR: ${{ github.actor }}
       uses: actions/github-script@v7
       with:
         script: |
@@ -52,8 +53,8 @@ jobs:
                             owner: context.repo.owner,
                             repo: context.repo.repo,
                             run_id: context.runId,
-                            release_id: "${{ inputs.release_tag }}",
-                            actor: "${{ github.actor }}"
+                            release_id: process.env.RELEASE_TAG,
+                            actor: process.env.ACTOR
                         }
                         const elasticUrl = `${process.env.ELASTIC_HOST}/${process.env.ELASTIC_INDEX}/_doc`;
                         console.log(`Posting to URL = ${elasticUrl}`);
