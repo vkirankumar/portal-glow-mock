@@ -13,14 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Gather workflow metadata
-      run: |
-        echo "workflow=${{ github.workflow }}" >> $GITHUB_OUTPUT
-        echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
-        echo "run_number=${{ github.run_number }}" >> $GITHUB_OUTPUT
-        echo "actor=${{ github.actor }}" >> $GITHUB_OUTPUT
-        echo "ref=${{ github.ref }}" >> $GITHUB_OUTPUT
-        echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+    # - name: Gather workflow metadata
+    #   run: |
+    #     echo "workflow=${{ github.workflow }}" >> $GITHUB_OUTPUT
+    #     echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
+    #     echo "run_number=${{ github.run_number }}" >> $GITHUB_OUTPUT
+    #     echo "actor=${{ github.actor }}" >> $GITHUB_OUTPUT
+    #     echo "ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+    #     echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
 
     - name: Fetch job results
       uses: actions/github-script@v7
@@ -34,12 +34,13 @@ jobs:
             });
 
             const jobData = data.jobs.slice(0, data.jobs.length - 1);
-            const jobs = jobData.map(j => ({
-                name: j.name,
-                status: j.status,
-                conclusion: j.conclusion,
-                started_at: j.started_at,
-                completed_at: j.completed_at,
+            const jobs = jobData.map(job => ({
+                "@timestamp": job.completed_at,
+                name: job.name,
+                status: job.status,
+                conclusion: job.conclusion,
+                started_at: job.started_at,
+                completed_at: job.completed_at,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 run_id: context.runId,
