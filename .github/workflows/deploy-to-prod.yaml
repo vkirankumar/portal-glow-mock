@@ -22,7 +22,7 @@ jobs:
         uses: ./.github/workflows/generate-release-tag.yaml
         secrets: inherit
     
-    docker:
+    build-publish-docker:
         needs: generate-release-tag
         runs-on: ubuntu-latest
         steps:
@@ -51,7 +51,7 @@ jobs:
           run: echo "release_tag=${{ needs.generate-release-tag.outputs.release_tag }}" >> "$GITHUB_OUTPUT"
     
     chart-tagger:
-        needs: [ generate-release-tag, docker ]
+        needs: [ generate-release-tag, build-publish-docker ]
         runs-on: ubuntu-latest
         steps:
             - name: Dispatch chart tagger event
@@ -74,7 +74,7 @@ jobs:
         runs-on: ubuntu-latest
 
         if: success() || failure()
-        needs: [ generate-release-tag, docker, chart-tagger ]
+        needs: [ generate-release-tag, build-publish-docker, chart-tagger ]
         steps:
 
         - name: Gather workflow metadata
@@ -97,13 +97,17 @@ jobs:
                     run_id: runId
                 });
 
-                const jobs = data.jobs.map(j => ({
-                    name: j.name,
-                    status: j.status,
-                    conclusion: j.conclusion,
-                    started_at: j.started_at,
-                    completed_at: j.completed_at
-                }));
+                const jobs = data.jobs.map((j, i) => {
+                    if (i < data.jobs.length - 1) {
+                        return  {
+                            name: j.name,
+                            status: j.status,
+                            conclusion: j.conclusion,
+                            started_at: j.started_at,
+                            completed_at: j.completed_at
+                        }
+                    }                    
+                });
 
                 console.log(JSON.stringify(jobs, null, 2));
 
