@@ -76,3 +76,6 @@ jobs:
         uses: ./.github/workflows/notify-and-log.yaml
         with:
             release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
+        secrets:
+            ELASTIC_HOST: ${{ secrets.ELASTIC_HOST }}
+            ELASTIC_KEY: ${{ secrets.ELASTIC_KEY }}

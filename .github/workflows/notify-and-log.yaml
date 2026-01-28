@@ -7,6 +7,11 @@ on:
         description: 'The unique release tag'
         type: string
         required: true
+    secrets:
+      ELASTIC_HOST:
+        required: true
+      ELASTIC_KEY:
+        required: true
 
 jobs:
   notify-job-status:
