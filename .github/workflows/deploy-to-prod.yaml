@@ -7,10 +7,12 @@ on:
         description: 'ServiceNow change request number'
         type: string
         required: true
+        default: 'CHR1234'
       release_note:
         description: 'Confluence link to release notes'
         type: string
         required: true
+        default: 'https://confluence.odido.nl/release_note.html'
       jira_release:
         description: 'Jira release'
         type: string
