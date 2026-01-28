@@ -65,6 +65,7 @@ jobs:
                         "client_payload": {
                         "release_tag": ${{ needs.docker.outputs.release_tag }},
                         "chr": ${{ inputs.cr }}
+                        "release_note": ${{ inputs.release_note }}
                         }
                     }'
 
