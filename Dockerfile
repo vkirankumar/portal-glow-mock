@@ -4,4 +4,4 @@ COPY . .
 RUN npm install
 RUN npm run docker
 EXPOSE 3000
-CMD npm run web
+CMD npm run execute
