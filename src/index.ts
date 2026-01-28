@@ -10,7 +10,7 @@ const __dirname = dirname(__filename);
 
 app.listen(port);
 
-log("Node application started at port " + port);
+log("Hello 🚀, Node application started at port " + port);
 
 app.get("/health", (req, res) => {
     res.send("OK");
