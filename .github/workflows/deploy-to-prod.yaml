@@ -63,9 +63,9 @@ jobs:
                     -d '{
                         "event_type": "helm_chart_image_tag_update",
                         "client_payload": {
-                        "release_tag": ${{ needs.docker.outputs.release_tag }},
-                        "chr": ${{ inputs.cr }},
-                        "release_note": ${{ inputs.release_note }}
+                        "release_tag": "${{ needs.docker.outputs.release_tag }}",
+                        "chr": "${{ inputs.cr }}",
+                        "release_note": "${{ inputs.release_note }}"
                         }
                     }'
 
