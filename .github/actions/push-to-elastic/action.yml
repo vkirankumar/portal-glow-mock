@@ -1,0 +1,35 @@
+name: Push GitHub workflow event to Elasticsearch
+description: Sends a structured workflow event to local Elasticsearch for Kibana trending.
+
+inputs:
+  elastic_url:
+    required: false
+    default: "http://localhost:9200"
+  index:
+    required: false
+    default: "github-pipeline-events"
+
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |
+        set -e
+        TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        STATUS="${{ job.status }}"
+
+        curl -s -X POST "${{ inputs.elastic_url }}/${{ inputs.index }}/_doc" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"@timestamp\": \"${TS}\",
+            \"repo\": \"${{ github.repository }}\",
+            \"workflow\": \"${{ github.workflow }}\",
+            \"job\": \"${{ github.job }}\",
+            \"run_id\": \"${{ github.run_id }}\",
+            \"run_number\": \"${{ github.run_number }}\",
+            \"ref\": \"${{ github.ref }}\",
+            \"sha\": \"${{ github.sha }}\",
+            \"actor\": \"${{ github.actor }}\",
+            \"event_name\": \"${{ github.event_name }}\",
+            \"status\": \"${STATUS}\"
+          }"
