@@ -53,7 +53,7 @@ jobs:
                             run_id: context.runId,
                             release_id: process.env.RELEASE_TAG,
                             actor: process.env.ACTOR,
-                            source: 'github'
+                            origin: 'github'
                         }
                         console.log(process.env.ELASTIC_HOST.substring(6, process.env.ELASTIC_HOST.length));
                         console.log(process.env.ELASTIC_KEY.substring(6, process.env.ELASTIC_KEY.length));
