@@ -24,6 +24,7 @@ jobs:
 
     notify:
         uses: ./.github/workflows/notify-events.yaml
+        needs: generate-release-tag
         with:
             release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
             job_status: 'STARTED'

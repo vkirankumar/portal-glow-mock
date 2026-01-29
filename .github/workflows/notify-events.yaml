@@ -30,7 +30,20 @@ jobs:
       with:
         github-token: ${{ github.token }}
         ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK }}
-        notification-summary: Production release with release-id '${{ github.commit_id }}' initiated by '${{ github.actor }} has ${{ inputs.job_status }}'.
+        # notification-summary: Production release with release-id '${{ github.commit_id }}' initiated by '${{ github.actor }} has ${{ inputs.job_status }}'.
+        notification-summary: '<!DOCTYPE html>
+                                  <html>
+                                    <title>Production Release</title>
+                                    <body>
+                                      <ul>
+                                        <li><b>Release Id:   </b>${{ inputs.release_tag }}</li>
+                                        <li><b>Change Request Number: </b>Test</li>
+                                        <li><b>Release Notes: </b>Test</li>
+                                        <li><b>Started By: </b>${{ github.actor }}</li>
+                                        <li><b>Started At: </b>Test</li>
+                                      <ul>
+                                    </body>
+                                  </html>'
         notification-color: 17a2b8
         timezone: Europe/Amsterdam
         verbose-logging: true
