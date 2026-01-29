@@ -55,7 +55,7 @@ jobs:
                             actor: process.env.ACTOR
                         }
                         console.log(process.env.ELASTIC_HOST.substring(6, process.env.ELASTIC_HOST.length));
-                        console.log(process.env.ELASTIC_HOST.substring(6, process.env.ELASTIC_KEY.length));
+                        console.log(process.env.ELASTIC_KEY.substring(6, process.env.ELASTIC_KEY.length));
                         const elasticUrl = `${process.env.ELASTIC_HOST}/${process.env.ELASTIC_INDEX}/_doc`;
                         console.log(`Posting to URL = ${elasticUrl}`);
                         console.log(`Posting job ${job.name} to Elastic`);
