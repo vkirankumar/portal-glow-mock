@@ -36,7 +36,7 @@ jobs:
         #                               <ul>
         #                             </body>
         #                           </html>'
-        notification-color: 17a2b8
+        notification-color: FF2104
         timezone: Europe/Amsterdam
         verbose-logging: true
 
