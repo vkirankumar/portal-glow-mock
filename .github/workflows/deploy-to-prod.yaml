@@ -26,8 +26,7 @@ jobs:
         uses: ./.github/workflows/notify-events.yaml
         needs: generate-release-tag
         with:
-            release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
-            job_status: 'STARTED'
+            notfication_summary: React Portals <b>PROD</b> deployment with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}' initiated by <b>'${{ github.actor }}</b> has <b>started</b></br></br>123'.
         secrets:
             TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
     
@@ -88,3 +87,11 @@ jobs:
         secrets:
             ELASTIC_HOST: ${{ secrets.ELASTIC_HOST }}
             ELASTIC_KEY: ${{ secrets.ELASTIC_KEY }}
+
+    notify-job-status:
+        uses: ./.github/workflows/notify-events.yaml
+        needs: [ generate-release-tag, build-publish-docker, chart-tagger ]
+        with:
+            notfication_summary: React Portals <b>PROD</b> deployment with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}' initiated by <b>'${{ github.actor }}</b> has <b>succeeded</b></br></br>123.
+        secrets:
+            TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
