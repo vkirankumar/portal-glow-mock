@@ -17,16 +17,7 @@ jobs:
   notify-job-status:
     runs-on: ubuntu-latest
     steps:
-
-    # - name: Gather workflow metadata
-    #   run: |
-    #     echo "workflow=${{ github.workflow }}" >> $GITHUB_OUTPUT
-    #     echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
-    #     echo "run_number=${{ github.run_number }}" >> $GITHUB_OUTPUT
-    #     echo "actor=${{ github.actor }}" >> $GITHUB_OUTPUT
-    #     echo "ref=${{ github.ref }}" >> $GITHUB_OUTPUT
-    #     echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
-
+        
     - name: Fetch job results
       env:
           ELASTIC_INDEX: "portals-glow-cicd"
