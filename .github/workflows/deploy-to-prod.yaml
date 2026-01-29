@@ -22,15 +22,15 @@ jobs:
         uses: ./.github/workflows/generate-release-tag.yaml
         secrets: inherit
 
-    notify:
-        uses: ./.github/workflows/notify-events.yaml
-        needs: generate-release-tag
-        with:
-            initial-state: 'true'
-            release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
-            notfication_summary: "React Portals <b>PROD</b> deployment with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}' initiated by <b>'${{ github.actor }}</b>'"
-        secrets:
-            TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+    # notify:
+    #     uses: ./.github/workflows/notify-events.yaml
+    #     needs: generate-release-tag
+    #     with:
+    #         initial-state: 'true'
+    #         release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
+    #         notfication_summary: "React Portals <b>PROD</b> deployment with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}' initiated by <b>'${{ github.actor }}</b>'"
+    #     secrets:
+    #         TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
     
     build-publish-docker:
         needs: generate-release-tag
@@ -90,12 +90,12 @@ jobs:
             ELASTIC_HOST: ${{ secrets.ELASTIC_HOST }}
             ELASTIC_KEY: ${{ secrets.ELASTIC_KEY }}
 
-    notify-job-status:
-        if: success() || failure()
-        uses: ./.github/workflows/notify-events.yaml
-        needs: [ generate-release-tag, build-publish-docker, chart-tagger, port-logs ]
-        with:
-            release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
-            notfication_summary: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
-        secrets:
-            TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+    # notify-job-status:
+    #     if: success() || failure()
+    #     uses: ./.github/workflows/notify-events.yaml
+    #     needs: [ generate-release-tag, build-publish-docker, chart-tagger, port-logs ]
+    #     with:
+    #         release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
+    #         notfication_summary: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
+    #     secrets:
+    #         TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
