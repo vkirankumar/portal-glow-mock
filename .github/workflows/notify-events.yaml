@@ -9,11 +9,11 @@ on:
         required: true
       job_status:
         description: 'Status of the current job'
-        type: choice
-        options: 
-        - STARTED
-        - FAILED
-        - SUCCESS
+        type: string
+        # options: 
+        # - STARTED
+        # - FAILED
+        # - SUCCESS
         required: true
         default: 'STARTED'
     secrets:
