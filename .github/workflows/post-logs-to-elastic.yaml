@@ -43,7 +43,7 @@ jobs:
                     for (const job of jobs) {
                         const body = {
                             "@timestamp": job.completed_at,
-                            name: job.name,
+                            job_name: job.name,
                             status: job.status,
                             conclusion: job.conclusion,
                             started_at: job.started_at,
