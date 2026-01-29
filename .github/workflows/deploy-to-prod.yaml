@@ -27,6 +27,7 @@ jobs:
         needs: generate-release-tag
         with:
             initial-state: 'true'
+            release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
             notfication_summary: "[STARTED] React Portals <b>PROD</b> deployment with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}' initiated by <b>'${{ github.actor }}</b>'"
         secrets:
             TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
@@ -93,6 +94,7 @@ jobs:
         uses: ./.github/workflows/notify-events.yaml
         needs: [ generate-release-tag, build-publish-docker, chart-tagger ]
         with:
-            notfication_summary: "[PR-HELM] React Portals <b>PROD</b> deployment with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}'"
+            release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
+            notfication_summary: "[PR-HELM] React Portals <b>PROD</b> deployment"
         secrets:
             TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}

@@ -11,7 +11,6 @@ on:
         description: 'Nofity initial state'
         type: string
         default: 'false'
-        required: true
       release_tag:
         description: 'The unique release tag'
         type: string
@@ -57,7 +56,7 @@ jobs:
       with:
         github-token: ${{ github.token }}
         ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK }}
-        notification-summary: ${{ inputs.notfication_summary }}
+        notification-summary: '${{ inputs.notfication_summary }}. <b>Release Id:</b> ${{ inputs.release_tag }}, Initiated by: ${{ github.actor }}'
         # notification-summary: React Portals PROD deployment with release-id '${{ inputs.release_tag }}' initiated by '${{ github.actor }} has ${{ inputs.job_status }}'.
         # notification-summary: '<!DOCTYPE html>
         #                           <html>
