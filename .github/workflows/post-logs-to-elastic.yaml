@@ -38,7 +38,8 @@ jobs:
                     });
 
                     // Exclude skipped and notify job logs
-                    const jobs = data.jobs.filter(job => !!job.conclusion && job.conclusion !== 'skipped');
+                    const jobs = data.jobs.filter(job => (!!job.conclusion && job.conclusion !== 'skipped') 
+                            || job.name?.tolowerCase().includes('notify'));
                     for (const job of jobs) {
                         const body = {
                             "@timestamp": job.completed_at,
