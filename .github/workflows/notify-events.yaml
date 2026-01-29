@@ -20,7 +20,7 @@ on:
         required: true
 
 jobs:
-  port-job-logs-to-elastic:
+  notify-team:
     runs-on: ubuntu-latest
 
     steps:
