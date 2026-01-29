@@ -11,9 +11,9 @@ on:
         description: 'Status of the current job'
         type: string
         # options: 
-        # - STARTED
-        # - FAILED
-        # - SUCCESS
+        # - started
+        # - failed
+        # - success
         required: true
         default: 'STARTED'
     secrets:
@@ -30,7 +30,7 @@ jobs:
       with:
         github-token: ${{ github.token }}
         ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK }}
-        notification-summary: Pipeline with release-id '${{ github.commit_id }}' started by '${{ github.actor }}'.
+        notification-summary: Production release with release-id '${{ github.commit_id }}' initiated by '${{ github.actor }} has ${{ inputs.job_status }}'.
         notification-color: 17a2b8
         timezone: Europe/Amsterdam
         verbose-logging: true
