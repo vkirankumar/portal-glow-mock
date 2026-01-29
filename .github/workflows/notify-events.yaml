@@ -7,6 +7,15 @@ on:
         description: 'Job summary to be sent with the notification.'
         type: string
         required: true
+      initial-state:
+        description: 'Nofity initial state'
+        type: string
+        default: 'false'
+        required: true
+      release_tag:
+        description: 'The unique release tag'
+        type: string
+        required: true
     secrets:
       TEAMS_WEBHOOK:
         required: true
@@ -16,6 +25,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Compute worflow state
+      id: compute
+      env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          ACTOR: ${{ github.actor }}
+          STATE: ${{ inputs.initial-state }}
+      uses: actions/github-script@v7
+      with:
+        script: |
+                  async function main() {
+                          const runId = context.runId;
+                          const { data } = await github.rest.actions.listJobsForWorkflowRun({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              run_id: runId
+                          });
+
+                          // Exclude skipped and notify job logs
+                          const jobs = data.jobs.filter(job => !!job.conclusion && job.conclusion !== 'skipped');
+                          let status = jobs.some(job => job.conclusion === 'failure');
+                          core.setOutput("tone", (status && process.env.STATE === 'false') ? 'FF2104' : '07B11E');                      
+                      }
+                    main().catch(err => {
+                        core.setFailed(err.message);
+                    });
+             
+
     - name: Notify dedicated teams channel
       uses: jdcargile/ms-teams-notification@v1.4
       with:
@@ -36,7 +72,7 @@ jobs:
         #                               <ul>
         #                             </body>
         #                           </html>'
-        notification-color: FF2104
+        notification-color: ${{ steps.compute.outputs.tone }}
         timezone: Europe/Amsterdam
         verbose-logging: true
 
