@@ -43,8 +43,10 @@ jobs:
 
                           // Exclude skipped and notify job logs
                           const jobs = data.jobs.filter(job => !!job.conclusion && job.conclusion !== 'skipped');
-                          let status = jobs.some(job => job.conclusion === 'failure');
-                          core.setOutput("tone", (status && process.env.STATE === 'false') ? 'FF2104' : '07B11E');                      
+                          const status = jobs.some(job => job.conclusion === 'failure');
+                          const prefix =  status ? 'FAILED' : 'SUCCESS';
+                          core.setOutput("tone", (status && process.env.STATE === 'false') ? 'FF2104' : '07B11E');
+                          core.setOutput("prefix", process.env.STATE === 'true' ? 'STARTED' : prefix);                      
                       }
                     main().catch(err => {
                         core.setFailed(err.message);
@@ -56,7 +58,7 @@ jobs:
       with:
         github-token: ${{ github.token }}
         ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK }}
-        notification-summary: '${{ inputs.notfication_summary }}. <b>Release Id:</b> ${{ inputs.release_tag }}, Initiated by: ${{ github.actor }}'
+        notification-summary: '[${{ steps.compute.outputs.prefix }}] ${{ inputs.notfication_summary }}. <b>Release Id:</b> ${{ inputs.release_tag }}, Initiated by: ${{ github.actor }}'
         # notification-summary: React Portals PROD deployment with release-id '${{ inputs.release_tag }}' initiated by '${{ github.actor }} has ${{ inputs.job_status }}'.
         # notification-summary: '<!DOCTYPE html>
         #                           <html>
