@@ -21,6 +21,13 @@ jobs:
     generate-release-tag:
         uses: ./.github/workflows/generate-release-tag.yaml
         secrets: inherit
+
+    notify:
+        uses: ./.github/workflows/notify-events.yaml
+        with:
+            release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
+        secrets:
+            TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
     
     build-publish-docker:
         needs: generate-release-tag
@@ -70,10 +77,10 @@ jobs:
                 #         }
                 #     }'
 
-    finalize:
+    port-logs:
         if: success() || failure()
         needs: [ generate-release-tag, build-publish-docker, chart-tagger ]
-        uses: ./.github/workflows/notify-and-log.yaml
+        uses: ./.github/workflows/post-logs-to-elastic.yaml
         with:
             release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
         secrets:

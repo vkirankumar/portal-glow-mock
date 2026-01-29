@@ -1,4 +1,4 @@
-name: Notify events and port logs to elastic
+name: Port logs to elastic
 
 on:
   workflow_call:
@@ -14,11 +14,12 @@ on:
         required: true
 
 jobs:
-  notify-job-status:
+  port-job-logs-to-elastic:
     runs-on: ubuntu-latest
+
     steps:
-        
-    - name: Fetch job results
+
+    - name: Ship job results
       env:
           ELASTIC_INDEX: "portals-glow-cicd"
           ELASTIC_HOST: ${{ secrets.ELASTIC_HOST }}
@@ -36,7 +37,7 @@ jobs:
                         run_id: runId
                     });
 
-                    // Exclude finalizer job
+                    // Exclude skipped and notify job logs
                     const jobs = data.jobs.filter(job => !!job.conclusion && job.conclusion !== 'skipped');
                     for (const job of jobs) {
                         const body = {
@@ -73,7 +74,3 @@ jobs:
                 main().catch(err => {
                     core.setFailed(err.message);
                 });
-
-            # console.log(JSON.stringify(jobs, null, 2));
-
-            
