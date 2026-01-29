@@ -64,7 +64,7 @@ jobs:
                         const elasticUrl = `${process.env.ELASTIC_HOST}/${process.env.ELASTIC_INDEX}/_doc`;
                         console.log(`Posting to URL = ${elasticUrl}`);
                         console.log(`Posting job ${job.name} to Elastic`);
-                        console.log("Request : " + body);
+                        console.log("Request : " + JSON.stringify(body));
                         const response = await fetch(elasticUrl, {
                             method: 'POST',
                             headers: {
@@ -75,7 +75,7 @@ jobs:
                         });
 
                         const data = await response.json();
-                        console.log("Response : " + data);
+                        console.log("Response : " + JSON.stringify(data));
                         console.log(`Indexed job ${job.name}`);
                     }
                 }
