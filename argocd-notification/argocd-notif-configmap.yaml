@@ -20,18 +20,19 @@ data:
           method: POST
           body: |
             {{- $timestamp := call .time.Now -}}
-            {{- $releaseTag := default "" (index .app.metadata.annotations "release.tag") -}}
+            {{- $img := index .app.status.summary.images 0 -}}
+            {{- $tag := "" -}}
+            {{- if contains ":" $img -}}
+              {{- $tag = (split ":" $img )._1 -}}
+            {{- end -}}
+
             {
               "name": {{ .app.metadata.name | toJson }},
-              "context": {{ .context | toJson }},
               "labels": {{ .app.metadata.labels | toJson }},
-              "annotations": {{ (omit .app.metadata.annotations "kubectl.kubernetes.io/last-applied-configuration" "notified.notifications.argoproj.io") | toJson }},
-              "source": {{ (merge (omit .app.spec.source "helm") (dict "type" "helm")) | toJson }},
-              "destination": {{ .app.spec.destination | toJson }},
               "syncPolicy": {{ .app.spec.syncPolicy | toJson }},
               "info": {{ .app.spec.info | toJson }},
-              "image": {{ index .app.status.summary.images 0 | toJson }},
-              "release_id": {{ $releaseTag | toJson }},
+              "image": {{ $img | toJson }},
+              "release_id": {{ $tag | toJson }},
               "health": {{ .app.status.health.status | toJson }},
               "@timestamp": "{{ $timestamp.Format "2006-01-02T15:04:05Z07:00" }}",
               "origin": "argocd"
