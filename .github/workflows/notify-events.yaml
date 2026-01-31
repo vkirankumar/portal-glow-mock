@@ -15,6 +15,16 @@ on:
         description: 'The unique release tag'
         type: string
         required: true
+      notification_stage:
+        description: "Select the notification stage"
+        required: true
+        type: choice
+        options:
+          - BUILD_PUBLISH_IMAGE
+          - CREATE_HELM_PR
+          - MERGE_HELM_PR
+          - STARTED
+          - FINISHED
     secrets:
       TEAMS_WEBHOOK:
         required: true
