@@ -58,7 +58,7 @@ jobs:
       with:
         github-token: ${{ github.token }}
         ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK }}
-        notification-summary: '<p style="color:#${{ steps.compute.outputs.tone }}"><b>[${{ steps.compute.outputs.prefix }}]</b></p> ${{ inputs.notfication_summary }}. <b>Release Id:</b> ${{ inputs.release_tag }}, Initiated by: ${{ github.actor }}'
+        notification-summary: '<p style="color:#${{ steps.compute.outputs.tone }}"><b>[${{ steps.compute.outputs.prefix }}]</b></p> <u>${{ inputs.notfication_summary }}. <b>Release Id:</b> ${{ inputs.release_tag }}, Initiated by: ${{ github.actor }}</u>'
         # notification-summary: React Portals PROD deployment with release-id '${{ inputs.release_tag }}' initiated by '${{ github.actor }} has ${{ inputs.job_status }}'.
         # notification-summary: '<!DOCTYPE html>
         #                           <html>
