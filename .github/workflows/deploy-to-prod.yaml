@@ -29,7 +29,6 @@ jobs:
             initial-state: 'true'
             release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
             notfication_summary: "React Portals <b>PROD</b> deployment with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}' initiated by <b>'${{ github.actor }}</b>'"
-            notification_stage: "STARTED"
         secrets:
             TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
     
@@ -97,7 +96,6 @@ jobs:
         needs: [ generate-release-tag, build-publish-docker, chart-tagger, port-logs ]
         with:
             release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
-            notfication_summary: "React Portals <b>PROD</b> deployment"
-            notification_stage: "BUILD-PUBLISH-IMAGE"
+            notfication_summary: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
         secrets:
             TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
