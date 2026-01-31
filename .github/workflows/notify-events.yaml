@@ -7,14 +7,14 @@ on:
         description: 'Job summary to be sent with the notification.'
         type: string
         required: true
+      initial-state:
+        description: 'Nofity initial state'
+        type: string
+        default: 'false'
       release_tag:
         description: 'The unique release tag'
         type: string
         required: true
-      notification_step:
-        description: "Prefix notification stage like STARTED, FINISHED etc.,"
-        required: true
-        type: string
     secrets:
       TEAMS_WEBHOOK:
         required: true
@@ -29,7 +29,7 @@ jobs:
       env:
           RELEASE_TAG: ${{ inputs.release_tag }}
           ACTOR: ${{ github.actor }}
-          STEP: ${{ inputs.notification_step }}
+          STATE: ${{ inputs.initial-state }}
       uses: actions/github-script@v7
       with:
         script: |
@@ -46,7 +46,7 @@ jobs:
                           const status = jobs.some(job => job.conclusion === 'failure');
                           const prefix =  status ? 'FAILED' : 'SUCCESS';
                           core.setOutput("tone", (status && process.env.STATE === 'false') ? 'FF2104' : '07B11E');
-                          // core.setOutput("prefix", process.env.STATE === 'true' ? 'STARTED' : prefix);                      
+                          core.setOutput("prefix", process.env.STATE === 'true' ? 'STARTED' : prefix);                      
                       }
                     main().catch(err => {
                         core.setFailed(err.message);
@@ -58,7 +58,7 @@ jobs:
       with:
         github-token: ${{ github.token }}
         ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK }}
-        notification-summary: '<p style="color:#${{ steps.compute.outputs.tone }}"><b>[${{ steps.compute.outputs.prefix }}]</b></p> <u>${{ inputs.notification_step }}</u>${{ inputs.notfication_summary }}. <b>Release Id:</b> ${{ inputs.release_tag }}, Initiated by: ${{ github.actor }}.'
+        notification-summary: '<p style="color:#${{ steps.compute.outputs.tone }}"><b>[${{ steps.compute.outputs.prefix }}]</b></p> <u>${{ inputs.notfication_summary }}. <b>Release Id:</b> ${{ inputs.release_tag }}, Initiated by: ${{ github.actor }}</u>'
         # notification-summary: React Portals PROD deployment with release-id '${{ inputs.release_tag }}' initiated by '${{ github.actor }} has ${{ inputs.job_status }}'.
         # notification-summary: '<!DOCTYPE html>
         #                           <html>
