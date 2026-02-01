@@ -91,7 +91,7 @@ jobs:
             ELASTIC_KEY: ${{ secrets.ELASTIC_KEY }}
 
     notify-job-status:
-        if: success() || failure()
+        if: success() || failure() || cancelled()
         uses: ./.github/workflows/notify-events.yaml
         needs: [ generate-release-tag, build-publish-docker, chart-tagger, port-logs ]
         with:

@@ -21,4 +21,4 @@ jobs:
         id: vars
         run: |
             FULL_HASH=$(git rev-parse --short HEAD)
-            echo "release_tag=$FULL_HASH" >> $GITHUB_OUTPUT
+            echo "release_tag=$FULL_HASH_${{ github.run_attempt }}" >> $GITHUB_OUTPUT
