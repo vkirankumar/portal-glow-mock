@@ -81,7 +81,7 @@ jobs:
                     }'
 
     port-logs:
-        if: success() || failure()
+        if: success() || failure() || cancelled()
         needs: [ generate-release-tag, build-publish-docker, chart-tagger ]
         uses: ./.github/workflows/post-logs-to-elastic.yaml
         with:
