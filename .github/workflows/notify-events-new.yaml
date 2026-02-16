@@ -53,7 +53,7 @@ jobs:
               });
 
       - name: Notify dedicated teams channel
-        uses: .github/actions/teams-notify@v1
+        uses: ./.github/actions/teams-notify@v1
         with:
           webhook_url: ${{ secrets.TEAMS_WEBHOOK }}
           title: "CI: ${{ github.repository }}"
