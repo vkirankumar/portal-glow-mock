@@ -52,8 +52,10 @@ jobs:
                   core.setFailed(err.message);
               });
 
+      - uses: actions/checkout@v4
+
       - name: Notify dedicated teams channel
-        uses: ./.github/actions/teams-notify@v1
+        uses: ./.github/actions/teams-notify
         with:
           webhook_url: ${{ secrets.TEAMS_WEBHOOK }}
           title: "CI: ${{ github.repository }}"
