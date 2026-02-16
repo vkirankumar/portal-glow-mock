@@ -95,7 +95,7 @@ jobs:
   notify-job-status:
     if: success() || failure() || cancelled()
     #uses: ./.github/workflows/notify-events.yaml
-    uses: ./.github/workflows/notify-events.yaml
+    uses: ./.github/workflows/notify-events-new.yaml
     needs: [generate-release-tag, build-publish-docker, chart-tagger, port-logs]
     with:
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
