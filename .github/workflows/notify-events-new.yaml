@@ -3,7 +3,7 @@ name: Notify events
 on:
   workflow_call:
     inputs:
-      notfication_summary:
+      title:
         description: "Job summary to be sent with the notification."
         type: string
         required: true
@@ -53,25 +53,14 @@ jobs:
               });
 
       - name: Notify dedicated teams channel
-        uses: jdcargile/ms-teams-notification@v1.4
+        uses: .github/actions/teams-notify@v1
         with:
-          github-token: ${{ github.token }}
-          ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK }}
-          notification-summary: '<p style="color:#${{ steps.compute.outputs.tone }}"><b>[${{ steps.compute.outputs.prefix }}]</b></p> <u>${{ inputs.notfication_summary }}. <b>Release Id:</b> ${{ inputs.release_tag }}, Initiated by: ${{ github.actor }}</u>'
-          # notification-summary: React Portals PROD deployment with release-id '${{ inputs.release_tag }}' initiated by '${{ github.actor }} has ${{ inputs.job_status }}'.
-          # notification-summary: '<!DOCTYPE html>
-          #                           <html>
-          #                             <title>Production Release</title>
-          #                             <body>
-          #                               <ul>
-          #                                 <li><b>Release Id:   </b>${{ inputs.release_tag }}</li>
-          #                                 <li><b>Change Request Number: </b>Test</li>
-          #                                 <li><b>Release Notes: </b>Test</li>
-          #                                 <li><b>Started By: </b>${{ github.actor }}</li>
-          #                                 <li><b>Started At: </b>Test</li>
-          #                               <ul>
-          #                             </body>
-          #                           </html>'
-          notification-color: ${{ steps.compute.outputs.tone }}
-          timezone: Europe/Amsterdam
-          verbose-logging: true
+          webhook_url: ${{ secrets.TEAMS_WEBHOOK }}
+          title: "CI: ${{ github.repository }}"
+          message: |
+            **Workflow:** ${{ github.workflow }}
+            **Job:** ${{ github.job }}
+            **Status:** ${{ job.status }}
+            **Actor:** ${{ github.actor }}
+          color: ${{ job.status == 'success' && '2EB886' || 'A30200' }}
+          button_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

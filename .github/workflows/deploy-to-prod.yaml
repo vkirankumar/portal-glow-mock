@@ -4,98 +4,102 @@ on:
   workflow_dispatch:
     inputs:
       cr:
-        description: 'ServiceNow change request number'
+        description: "ServiceNow change request number"
         type: string
         required: true
-        default: 'CHR1234'
+        default: "CHR1234"
       release_note:
-        description: 'Confluence link to release notes'
+        description: "Confluence link to release notes"
         type: string
         required: true
-        default: 'https://confluence.odido.nl/release_note.html'
+        default: "https://confluence.odido.nl/release_note.html"
       jira_release:
-        description: 'Jira release'
+        description: "Jira release"
         type: string
 
 jobs:
-    generate-release-tag:
-        uses: ./.github/workflows/generate-release-tag.yaml
-        secrets: inherit
+  generate-release-tag:
+    uses: ./.github/workflows/generate-release-tag.yaml
+    secrets: inherit
 
-    notify:
-        uses: ./.github/workflows/notify-events.yaml
-        needs: generate-release-tag
+  notify:
+    #uses: ./.github/workflows/notify-events.yaml
+    uses: ./.github/workflows/notify-events-new.yaml
+    needs: generate-release-tag
+    with:
+      initial-state: "true"
+      release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
+      #notfication_summary: "React Portals <b>PROD</b> deployment with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}' initiated by <b>'${{ github.actor }}</b>'"
+      title: "React Portals <b>PROD</b> deployment with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}' initiated by <b>'${{ github.actor }}</b>'"
+    secrets:
+      TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+
+  build-publish-docker:
+    needs: generate-release-tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print release tag
+        run: echo "Release Tag = ${{ needs.generate-release-tag.outputs.release_tag}}"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-            initial-state: 'true'
-            release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
-            notfication_summary: "React Portals <b>PROD</b> deployment with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}' initiated by <b>'${{ github.actor }}</b>'"
-        secrets:
-            TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
-    
-    build-publish-docker:
-        needs: generate-release-tag
-        runs-on: ubuntu-latest
-        steps:
-        - name: Print release tag
-          run: echo "Release Tag = ${{ needs.generate-release-tag.outputs.release_tag}}"
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-        - name: Login to Docker Hub
-          uses: docker/login-action@v3
-          with:
-            username: ${{ secrets.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-        - name: Set up QEMU
-          uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-        - name: Set up Docker Buildx
-          uses: docker/setup-buildx-action@v3
-
-        - name: Build and push
-          uses: docker/build-push-action@v6
-          with:
-            push: true
-            tags: ${{ secrets.DOCKERHUB_USERNAME }}/glow-portals:${{ needs.generate-release-tag.outputs.release_tag }}
-        
-        - name: Pass release_tag to next job
-          run: echo "release_tag=${{ needs.generate-release-tag.outputs.release_tag }}" >> "$GITHUB_OUTPUT"
-    
-    chart-tagger:
-        needs: [ generate-release-tag, build-publish-docker ]
-        runs-on: ubuntu-latest
-        steps:
-            - name: Dispatch chart tagger event
-              run: |
-                echo "release_tag=${{ needs.generate-release-tag.outputs.release_tag }}"
-                curl -X POST \
-                    -H "Authorization: Bearer ${{ secrets.CLASSIC_PAT_CROSS_REPO }}" \
-                    -H "Accept: application/vnd.github+json" \
-                    https://api.github.com/repos/vkirankumar/portal-glow-mock-helm/dispatches \
-                    -d '{
-                        "event_type": "helm_chart_image_tag_update",
-                        "client_payload": {
-                        "release_tag": "${{ needs.generate-release-tag.outputs.release_tag }}",
-                        "chr": "${{ inputs.cr }}",
-                        "release_note": "${{ inputs.release_note }}"
-                        }
-                    }'
-
-    port-logs:
-        if: success() || failure() || cancelled()
-        needs: [ generate-release-tag, build-publish-docker, chart-tagger ]
-        uses: ./.github/workflows/post-logs-to-elastic.yaml
+      - name: Build and push
+        uses: docker/build-push-action@v6
         with:
-            release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
-        secrets:
-            ELASTIC_HOST: ${{ secrets.ELASTIC_HOST }}
-            ELASTIC_KEY: ${{ secrets.ELASTIC_KEY }}
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/glow-portals:${{ needs.generate-release-tag.outputs.release_tag }}
 
-    notify-job-status:
-        if: success() || failure() || cancelled()
-        uses: ./.github/workflows/notify-events.yaml
-        needs: [ generate-release-tag, build-publish-docker, chart-tagger, port-logs ]
-        with:
-            release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
-            notfication_summary: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
-        secrets:
-            TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+      - name: Pass release_tag to next job
+        run: echo "release_tag=${{ needs.generate-release-tag.outputs.release_tag }}" >> "$GITHUB_OUTPUT"
+
+  chart-tagger:
+    needs: [generate-release-tag, build-publish-docker]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch chart tagger event
+        run: |
+          echo "release_tag=${{ needs.generate-release-tag.outputs.release_tag }}"
+          curl -X POST \
+              -H "Authorization: Bearer ${{ secrets.CLASSIC_PAT_CROSS_REPO }}" \
+              -H "Accept: application/vnd.github+json" \
+              https://api.github.com/repos/vkirankumar/portal-glow-mock-helm/dispatches \
+              -d '{
+                  "event_type": "helm_chart_image_tag_update",
+                  "client_payload": {
+                  "release_tag": "${{ needs.generate-release-tag.outputs.release_tag }}",
+                  "chr": "${{ inputs.cr }}",
+                  "release_note": "${{ inputs.release_note }}"
+                  }
+              }'
+
+  port-logs:
+    if: success() || failure() || cancelled()
+    needs: [generate-release-tag, build-publish-docker, chart-tagger]
+    uses: ./.github/workflows/post-logs-to-elastic.yaml
+    with:
+      release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
+    secrets:
+      ELASTIC_HOST: ${{ secrets.ELASTIC_HOST }}
+      ELASTIC_KEY: ${{ secrets.ELASTIC_KEY }}
+
+  notify-job-status:
+    if: success() || failure() || cancelled()
+    #uses: ./.github/workflows/notify-events.yaml
+    uses: ./.github/workflows/notify-events.yaml
+    needs: [generate-release-tag, build-publish-docker, chart-tagger, port-logs]
+    with:
+      release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
+      #notfication_summary: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
+      title: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
+    secrets:
+      TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
