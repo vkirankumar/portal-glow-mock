@@ -18,7 +18,6 @@ on:
       release_tag:
         description: "The unique release tag"
         type: string
-        required: true
     secrets:
       TEAMS_WEBHOOK:
         required: true
