@@ -30,6 +30,7 @@ jobs:
       initial-state: "true"
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
       #notfication_summary: "React Portals <b>PROD</b> deployment with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}' initiated by <b>'${{ github.actor }}</b>'"
+      title: "CD: ${{ github.repository }}"
       message: "React Portals <b>PROD</b> deployment with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}' initiated by <b>'${{ github.actor }}</b>'"
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}

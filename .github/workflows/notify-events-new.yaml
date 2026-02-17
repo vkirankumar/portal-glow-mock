@@ -7,6 +7,10 @@ on:
         description: "Job summary to be sent with the notification."
         type: string
         required: true
+      message:
+        description: "Notification text to be sent out."
+        type: string
+        required: true
       initial-state:
         description: "Nofity initial state"
         type: string
