@@ -15,9 +15,6 @@ on:
         description: "The unique release tag"
         type: string
         required: true
-      job_name:
-        required: true
-        type: string
     secrets:
       TEAMS_WEBHOOK:
         required: true
@@ -61,11 +58,7 @@ jobs:
         uses: ./.github/actions/teams-notify
         with:
           webhook_url: ${{ secrets.TEAMS_WEBHOOK }}
-          title: "CI: ${{ github.repository }}"
-          message: |
-            **Workflow:** ${{ github.workflow }}
-            **Job:** ${{ inputs.job_name }}
-            **Status:** ${{ job.status }}
-            **Actor:** ${{ github.actor }}
+          title: "CD: ${{ github.repository }}"
+          message: '<p style="color:#${{ steps.compute.outputs.tone }}"><b>[${{ steps.compute.outputs.prefix }}]</b></p> <u>${{ inputs.title }}. <b>Release Id:</b> ${{ inputs.release_tag }}, Initiated by: ${{ github.actor }}</u>'
           color: ${{ job.status == 'success' && '2EB886' || 'A30200' }}
           button_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
