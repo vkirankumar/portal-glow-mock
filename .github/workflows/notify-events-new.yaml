@@ -63,6 +63,6 @@ jobs:
         with:
           webhook_url: ${{ secrets.TEAMS_WEBHOOK }}
           title: "CD: ${{ github.repository }}"
-          message: '<p style="color:#${{ steps.compute.outputs.tone }}"><b>[${{ steps.compute.outputs.prefix }}]</b></p> <u>${{ inputs.title }}. <b>Release Id:</b> ${{ inputs.release_tag }}, Initiated by: ${{ github.actor }}</u>'
+          message: '<p style="color:#${{ steps.compute.outputs.tone }}"><b>[${{ steps.compute.outputs.prefix }}]</b></p> <u>${{ inputs.message }}. <b>Release Id:</b> ${{ inputs.release_tag }}, Initiated by: ${{ github.actor }}</u>'
           color: ${{ job.status == 'success' && '2EB886' || 'A30200' }}
           button_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
