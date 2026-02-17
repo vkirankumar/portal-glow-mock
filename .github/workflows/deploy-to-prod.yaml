@@ -29,7 +29,7 @@ jobs:
       initial-state: "true"
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
       title: "CD: ${{ github.repository }}: <b>Release tag generation finished.</b>"
-      message: "<b>PROD Deployment:</b> Release tag generation finished with state ${{ needs.generate-release-tag.result }}. "
+      message: "<b>PROD Deployment:</b> Release tag generation finished with state <b>${{ needs.generate-release-tag.result }}.</b>"
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
 
@@ -68,7 +68,7 @@ jobs:
       initial-state: "false"
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
       title: "CD: ${{ github.repository }}: <b>Build publish to docker finished.</b>"
-      message: "<b>PROD Deployment:</b> Build publish to docker finished with <b>Release-Id</b> '${{ needs.generate-release-tag.outputs.release_tag }}, initiated by <b>'${{ github.triggering_actor || github.actor }}</b>'"
+      message: "<b>PROD Deployment:</b> Build publish to docker finished with state <b>${{ needs.build-publish-docker.result }}.</b>"
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
 
@@ -99,7 +99,7 @@ jobs:
       initial-state: "true"
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
       title: "CD: ${{ github.repository }}: <b>Chart tagger finished.</b>"
-      message: "<b>PROD Deployment:</b> Chart tagger finished with <b>Release-Id</b> '${{ needs.generate-release-tag.outputs.release_tag}}, initiated by <b>'${{ github.triggering_actor || github.actor }}</b>'"
+      message: "<b>PROD Deployment:</b> Chart tagger finished with state <b>${{ needs.chart-tagger.result }}.</b>"
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
 
@@ -121,7 +121,7 @@ jobs:
       initial-state: "true"
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
       title: "CD: ${{ github.repository }}: <b>Port logs finished.</b>"
-      message: "<b>PROD Deployment:</b> Port logs finished with <b>Release-Id</b> '${{ needs.generate-release-tag.outputs.release_tag}}, initiated by <b>'${{ github.triggering_actor || github.actor }}</b>'"
+      message: "<b>PROD Deployment:</b> Port logs finished with state <b>${{ needs.port-logs.result }}.</b>"
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
 
