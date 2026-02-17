@@ -174,7 +174,5 @@ jobs:
         build-publish-docker=${{ needs.build-publish-docker.result }},
         chart-tagger=${{ needs.chart-tagger.result }},
         port-logs=${{ needs.port-logs.result }}
-        color: ${{ (contains(join(needs.*.result, ','), 'failure') && 'FF2104') || (contains(join(needs.*.result, ','), 'cancelled') && 'FFC107') || '07B11E' }}
-      button_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
