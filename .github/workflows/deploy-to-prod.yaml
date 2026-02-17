@@ -128,14 +128,53 @@ jobs:
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
 
-  notify-job-status:
-    if: success() || failure() || cancelled()
-    #uses: ./.github/workflows/notify-events.yaml
-    uses: ./.github/workflows/notify-events-new.yaml
+  workflow-summary:
+    name: Compute overall workflow state
+    runs-on: ubuntu-latest
     needs: [generate-release-tag, build-publish-docker, chart-tagger, port-logs]
+    if: always()
+    outputs:
+      state: ${{ steps.overall.outputs.state }}
+    steps:
+      - id: overall
+        shell: bash
+        run: |
+          RESULTS="${{ join(needs.*.result, ',') }}"
+          echo "Results: $RESULTS"
+
+          if echo "$RESULTS" | grep -q "failure"; then
+            echo "state=failure" >> $GITHUB_OUTPUT
+          elif echo "$RESULTS" | grep -q "cancelled"; then
+            echo "state=cancelled" >> $GITHUB_OUTPUT
+          else
+            echo "state=success" >> $GITHUB_OUTPUT
+          fi
+
+  notify-workflow-status:
+    name: notify overall workflow result
+    needs:
+      [
+        workflow-summary,
+        generate-release-tag,
+        build-publish-docker,
+        chart-tagger,
+        port-logs,
+      ]
+    if: always()
+    uses: ./.github/workflows/notify-events-new.yaml
     with:
-      release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
-      title: "CD: ${{ github.repository }}: <b>Deployment Final Status.</b>"
-      message: "React Portals, <b>PROD Deployment </b> finsihed with overall state: ${{ needs.build-publish-docker.result }}/${{ needs.chart-tagger.result }}/${{ needs.port-logs.result }}."
+      state: ${{ needs.workflow-summary.outputs.state }}
+      title: "CD: ${{ github.repository }} - Workflow completed"
+      message: >
+        Workflow: ${{ github.workflow }}
+        Run: ${{ github.run_id }}
+        Actor: ${{ github.triggering_actor || github.actor }}
+        Result:
+        generate-release-tag=${{ needs.generate-release-tag.result }},
+        build-publish-docker=${{ needs.build-publish-docker.result }},
+        chart-tagger=${{ needs.chart-tagger.result }},
+        port-logs=${{ needs.port-logs.result }}
+        color: ${{ (contains(join(needs.*.result, ','), 'failure') && 'FF2104') || (contains(join(needs.*.result, ','), 'cancelled') && 'FFC107') || '07B11E' }}
+      button_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
