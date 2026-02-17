@@ -133,6 +133,6 @@ jobs:
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
       #notfication_summary: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
       title: "CD: ${{ github.repository }}: <b>Deployment Final Status.</b>"
-      message: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment state: ${{ jobs.state}}"
+      message: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment state: ${{ needs.build-publish-docker.result }}/${{ needs.chart-tagger.result }}/${{ needs.port-logs.result }}."
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
