@@ -15,6 +15,9 @@ on:
         description: "The unique release tag"
         type: string
         required: true
+      job_name:
+        required: true
+        type: string
     secrets:
       TEAMS_WEBHOOK:
         required: true
@@ -61,7 +64,7 @@ jobs:
           title: "CI: ${{ github.repository }}"
           message: |
             **Workflow:** ${{ github.workflow }}
-            **Job:** ${{ github.job }}
+            **Job:** ${{ inputs.job_name }}
             **Status:** ${{ job.status }}
             **Actor:** ${{ github.actor }}
           color: ${{ job.status == 'success' && '2EB886' || 'A30200' }}

@@ -30,7 +30,7 @@ jobs:
       initial-state: "true"
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
       #notfication_summary: "React Portals <b>PROD</b> deployment with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}' initiated by <b>'${{ github.actor }}</b>'"
-      title: "React Portals <b>PROD</b> deployment with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}' initiated by <b>'${{ github.actor }}</b>'"
+      message: "React Portals <b>PROD</b> deployment with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}' initiated by <b>'${{ github.actor }}</b>'"
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
 
@@ -100,6 +100,6 @@ jobs:
     with:
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
       #notfication_summary: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
-      title: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
+      message: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
