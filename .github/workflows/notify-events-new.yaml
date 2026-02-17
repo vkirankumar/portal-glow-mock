@@ -15,6 +15,9 @@ on:
         description: "Nofity initial state"
         type: string
         default: "false"
+      state:
+        required: true
+        type: string # running|success|failure|cancelled
       release_tag:
         description: "The unique release tag"
         type: string
@@ -27,35 +30,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Compute worflow state
+      - name: Compute notification colors
         id: compute
         env:
-          RELEASE_TAG: ${{ inputs.release_tag }}
-          ACTOR: ${{ github.actor }}
-          STATE: ${{ inputs.initial-state }}
+          STATE: ${{ inputs.state }}
         uses: actions/github-script@v7
         with:
           script: |
-            async function main() {
-                    const runId = context.runId;
-                    const { data } = await github.rest.actions.listJobsForWorkflowRun({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        run_id: runId
-                    });
+            const state = (process.env.STATE || '').toLowerCase();
 
-                    // Exclude skipped and notify job logs
-                    const jobs = data.jobs.filter(job => !!job.conclusion && job.conclusion !== 'skipped');
-                    const status = jobs.some(job => job.conclusion === 'failure');
-                    const prefix =  status ? 'FAILED' : 'SUCCESS';
-                    core.setOutput("tone", (status && process.env.STATE === 'false') ? 'FF2104' : '07B11E');
-                    core.setOutput("prefix", process.env.STATE === 'true' ? 'STARTED' : prefix);                      
-                }
-              main().catch(err => {
-                  core.setFailed(err.message);
-              });
+            // Teams themeColor expects hex WITHOUT '#'
+            const colors = {
+              running:   '17A2B8', // blue
+              success:   '07B11E', // green
+              failure:   'FF2104', // red
+              cancelled: 'FFC107'  // yellow
+            };
 
-      - uses: actions/checkout@v4
+            const prefixes = {
+              running: 'STARTED',
+              success: 'SUCCESS',
+              failure: 'FAILED',
+              cancelled: 'CANCELLED'
+            };
+
+            core.setOutput('tone', colors[state] || '17A2B8');
+            core.setOutput('prefix', prefixes[state] || state.toUpperCase() || 'STATUS');
+
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Notify dedicated teams channel
         uses: ./.github/actions/teams-notify
@@ -63,5 +66,5 @@ jobs:
           webhook_url: ${{ secrets.TEAMS_WEBHOOK }}
           title: "CD: ${{ github.repository }}"
           message: '<p style="color:#${{ steps.compute.outputs.tone }}"><b>[${{ steps.compute.outputs.prefix }}]</b></p> <u>${{ inputs.message }}. <b>Release Id:</b> ${{ inputs.release_tag }}, <b>Initiated by:</b> ${{ github.actor }}</u>'
-          color: ${{ job.status == 'success' && '2EB886' || 'A30200' }}
+          color: ${{ steps.compute.outputs.tone }}
           button_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

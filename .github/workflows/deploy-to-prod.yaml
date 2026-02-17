@@ -27,6 +27,7 @@ jobs:
     uses: ./.github/workflows/notify-events-new.yaml
     needs: generate-release-tag
     with:
+      state: ${{ needs.generate-release-tag.result }}
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
       title: "CD: ${{ github.repository }}: <b>Release tag generation finished.</b>"
       message: "<b>PROD Deployment:</b> Release tag generation finished with state <b>${{ needs.generate-release-tag.result }}.</b>"
@@ -66,6 +67,7 @@ jobs:
     uses: ./.github/workflows/notify-events-new.yaml
     needs: [generate-release-tag, build-publish-docker]
     with:
+      state: ${{ needs.build-publish-docker.result }}
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
       title: "CD: ${{ github.repository }}: <b>Build publish to docker finished.</b>"
       message: "<b>PROD Deployment:</b> Build publish to docker finished with state <b>${{ needs.build-publish-docker.result }}.</b>"
@@ -97,6 +99,7 @@ jobs:
     uses: ./.github/workflows/notify-events-new.yaml
     needs: [generate-release-tag, chart-tagger]
     with:
+      state: ${{ needs.chart-tagger.result }}
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
       title: "CD: ${{ github.repository }}: <b>Chart tagger finished.</b>"
       message: "<b>PROD Deployment:</b> Chart tagger finished with state <b>${{ needs.chart-tagger.result }}.</b>"
@@ -118,6 +121,7 @@ jobs:
     uses: ./.github/workflows/notify-events-new.yaml
     needs: [generate-release-tag, port-logs]
     with:
+      state: ${{ needs.port-logs.result }}
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
       title: "CD: ${{ github.repository }}: <b>Port logs finished.</b>"
       message: "<b>PROD Deployment:</b> Port logs finished with state <b>${{ needs.port-logs.result }}.</b>"
@@ -131,8 +135,7 @@ jobs:
     needs: [generate-release-tag, build-publish-docker, chart-tagger, port-logs]
     with:
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
-      #notfication_summary: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
       title: "CD: ${{ github.repository }}: <b>Deployment Final Status.</b>"
-      message: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment state: ${{ needs.build-publish-docker.result }}/${{ needs.chart-tagger.result }}/${{ needs.port-logs.result }}."
+      message: "React Portals, <b>PROD Deployment </b> finsihed with overall state: ${{ needs.build-publish-docker.result }}/${{ needs.chart-tagger.result }}/${{ needs.port-logs.result }}."
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
