@@ -47,17 +47,22 @@ runs:
           ACTIONS="[]"
         fi
 
-        payload=$(cat <<EOF
-        {
-        "@type": "MessageCard",
-        "@context": "https://schema.org/extensions",
-        "themeColor": "${COLOR}",
-        "summary": "${TITLE}",
-        "title": "${TITLE}",
-        "text": "${MESSAGE}",
-        "potentialAction": ${ACTIONS}
-        }
-        EOF
+        payload=$(jq -n \
+        --arg type "MessageCard" \
+        --arg context "https://schema.org/extensions" \
+        --arg color "$COLOR" \
+        --arg title "$TITLE" \
+        --arg message "$MESSAGE" \
+        --argjson actions "$ACTIONS" \
+        '{
+        "@type": $type,
+        "@context": $context,
+        "themeColor": $color,
+        "summary": $title,
+        "title": $title,
+        "text": $message,
+        "potentialAction": $actions
+        }'
         )
 
         curl -sS -X POST -H "Content-Type: application/json" --data "$payload" "$WEBHOOK_URL"
