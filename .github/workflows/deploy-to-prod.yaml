@@ -22,8 +22,8 @@ jobs:
     uses: ./.github/workflows/notify-events-new.yaml
     with:
       initial-state: "true"
-      title: "CD: ${{ github.repository }}: Release tag generation started."
-      message: "<b>PROD</b> deployment: Release tag generation started, initiated by <b>'${{ github.triggering_actor || github.actor }}</b>'"
+      title: "CD: ${{ github.repository }}: <b>Release tag generation started.</b>"
+      message: "<b>PROD Deployment:</b> Release tag generation started, initiated by <b>'${{ github.triggering_actor || github.actor }}</b>'"
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
 
@@ -37,8 +37,19 @@ jobs:
     with:
       initial-state: "true"
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
-      title: "CD: ${{ github.repository }}: Release tag generation finished."
-      message: "<b>PROD</b> deployment: Release tag generation finished with <b>release-id</b> '${{ needs.generate-release-tag.outputs.release_tag}}, initiated by <b>'${{ github.triggering_actor || github.actor }}</b>'"
+      title: "CD: ${{ github.repository }}: <b>Release tag generation finished.</b>"
+      message: "<b>PROD Deployment:</b> Release tag generation finished with <b>Release-Id</b> '${{ needs.generate-release-tag.outputs.release_tag}}, initiated by <b>'${{ github.triggering_actor || github.actor }}</b>'"
+    secrets:
+      TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+
+  notify-build-publish-docker-started:
+    uses: ./.github/workflows/notify-events-new.yaml
+    needs: generate-release-tag
+    with:
+      initial-state: "true"
+      release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
+      title: "CD: ${{ github.repository }}: <b>Build publish to docker started.</b>"
+      message: "<b>PROD Deployment:</b> Build publish to docker started with <b>Release-Id</b> '${{ needs.generate-release-tag.outputs.release_tag}}, initiated by <b>'${{ github.triggering_actor || github.actor }}</b>'"
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
 
@@ -70,6 +81,28 @@ jobs:
       - name: Pass release_tag to next job
         run: echo "release_tag=${{ needs.generate-release-tag.outputs.release_tag }}" >> "$GITHUB_OUTPUT"
 
+  notify-build-publish-docker-finished:
+    uses: ./.github/workflows/notify-events-new.yaml
+    needs: build-publish-docker
+    with:
+      initial-state: "false"
+      release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
+      title: "CD: ${{ github.repository }}: <b>Build publish to docker finished.</b>"
+      message: "<b>PROD Deployment:</b> Build publish to docker finished with <b>Release-Id</b> '${{ needs.generate-release-tag.outputs.release_tag }}, initiated by <b>'${{ github.triggering_actor || github.actor }}</b>'"
+    secrets:
+      TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+
+  notify-chart-tagger-started:
+    uses: ./.github/workflows/notify-events-new.yaml
+    needs: generate-release-tag
+    with:
+      initial-state: "true"
+      release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
+      title: "CD: ${{ github.repository }}: <b>Chart tagger started.</b>"
+      message: "<b>PROD Deployment:</b> Chart tagger started with <b>Release-Id</b> '${{ needs.generate-release-tag.outputs.release_tag}}, initiated by <b>'${{ github.triggering_actor || github.actor }}</b>'"
+    secrets:
+      TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+
   chart-tagger:
     needs: [generate-release-tag, build-publish-docker]
     runs-on: ubuntu-latest
@@ -90,6 +123,28 @@ jobs:
                   }
               }'
 
+  notify-chart-tagger-finished:
+    uses: ./.github/workflows/notify-events-new.yaml
+    needs: chart-tagger
+    with:
+      initial-state: "true"
+      release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
+      title: "CD: ${{ github.repository }}: <b>Chart tagger finished.</b>"
+      message: "<b>PROD Deployment:</b> Chart tagger finished with <b>Release-Id</b> '${{ needs.generate-release-tag.outputs.release_tag}}, initiated by <b>'${{ github.triggering_actor || github.actor }}</b>'"
+    secrets:
+      TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+
+  notify-port-logs-started:
+    uses: ./.github/workflows/notify-events-new.yaml
+    needs: generate-release-tag
+    with:
+      initial-state: "true"
+      release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
+      title: "CD: ${{ github.repository }}: <b>Port logs started.</b>"
+      message: "<b>PROD Deployment:</b> Port logs started with <b>Release-Id</b> '${{ needs.generate-release-tag.outputs.release_tag}}, initiated by <b>'${{ github.triggering_actor || github.actor }}</b>'"
+    secrets:
+      TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+
   port-logs:
     if: success() || failure() || cancelled()
     needs: [generate-release-tag, build-publish-docker, chart-tagger]
@@ -100,6 +155,18 @@ jobs:
       ELASTIC_HOST: ${{ secrets.ELASTIC_HOST }}
       ELASTIC_KEY: ${{ secrets.ELASTIC_KEY }}
 
+  notify-port-logs-finished:
+    if: success() || failure() || cancelled()
+    uses: ./.github/workflows/notify-events-new.yaml
+    needs: port-logs
+    with:
+      initial-state: "true"
+      release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
+      title: "CD: ${{ github.repository }}: <b>Port logs finished.</b>"
+      message: "<b>PROD Deployment:</b> Port logs finished with <b>Release-Id</b> '${{ needs.generate-release-tag.outputs.release_tag}}, initiated by <b>'${{ github.triggering_actor || github.actor }}</b>'"
+    secrets:
+      TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+
   notify-job-status:
     if: success() || failure() || cancelled()
     #uses: ./.github/workflows/notify-events.yaml
@@ -108,7 +175,7 @@ jobs:
     with:
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
       #notfication_summary: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
-      title: "CD: ${{ github.repository }}"
+      title: "CD: ${{ github.repository }}: <b>Deployment Final Status.</b>"
       message: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
