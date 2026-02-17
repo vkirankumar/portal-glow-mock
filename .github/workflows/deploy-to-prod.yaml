@@ -23,10 +23,10 @@ jobs:
     secrets: inherit
 
   notify-release-tag-gen-finished:
+    if: success() || failure() || cancelled()
     uses: ./.github/workflows/notify-events-new.yaml
     needs: generate-release-tag
     with:
-      initial-state: "true"
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
       title: "CD: ${{ github.repository }}: <b>Release tag generation finished.</b>"
       message: "<b>PROD Deployment:</b> Release tag generation finished with state <b>${{ needs.generate-release-tag.result }}.</b>"
@@ -62,10 +62,10 @@ jobs:
         run: echo "release_tag=${{ needs.generate-release-tag.outputs.release_tag }}" >> "$GITHUB_OUTPUT"
 
   notify-build-publish-docker-finished:
+    if: success() || failure() || cancelled()
     uses: ./.github/workflows/notify-events-new.yaml
-    needs: build-publish-docker
+    needs: [generate-release-tag, build-publish-docker]
     with:
-      initial-state: "false"
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
       title: "CD: ${{ github.repository }}: <b>Build publish to docker finished.</b>"
       message: "<b>PROD Deployment:</b> Build publish to docker finished with state <b>${{ needs.build-publish-docker.result }}.</b>"
@@ -93,10 +93,10 @@ jobs:
               }'
 
   notify-chart-tagger-finished:
+    if: success() || failure() || cancelled()
     uses: ./.github/workflows/notify-events-new.yaml
-    needs: chart-tagger
+    needs: [generate-release-tag, chart-tagger]
     with:
-      initial-state: "true"
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
       title: "CD: ${{ github.repository }}: <b>Chart tagger finished.</b>"
       message: "<b>PROD Deployment:</b> Chart tagger finished with state <b>${{ needs.chart-tagger.result }}.</b>"
@@ -116,9 +116,8 @@ jobs:
   notify-port-logs-finished:
     if: success() || failure() || cancelled()
     uses: ./.github/workflows/notify-events-new.yaml
-    needs: port-logs
+    needs: [generate-release-tag, port-logs]
     with:
-      initial-state: "true"
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
       title: "CD: ${{ github.repository }}: <b>Port logs finished.</b>"
       message: "<b>PROD Deployment:</b> Port logs finished with state <b>${{ needs.port-logs.result }}.</b>"
@@ -134,6 +133,6 @@ jobs:
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
       #notfication_summary: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
       title: "CD: ${{ github.repository }}: <b>Deployment Final Status.</b>"
-      message: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
+      message: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment state: ${{ jobs.state}}"
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
