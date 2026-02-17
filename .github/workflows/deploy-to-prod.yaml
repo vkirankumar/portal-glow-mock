@@ -100,6 +100,7 @@ jobs:
     with:
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
       #notfication_summary: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
+      title: "CD: ${{ github.repository }}"
       message: "[BUILD-PUBLISH-IMAGE] React Portals <b>PROD</b> deployment"
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
