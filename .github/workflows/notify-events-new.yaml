@@ -57,6 +57,12 @@ jobs:
             core.setOutput('tone', colors[state] || '17A2B8');
             core.setOutput('prefix', prefixes[state] || state.toUpperCase() || 'STATUS');
 
+      - name: Compute timestamp
+        id: ts
+        shell: bash
+        run: |
+          echo "utc=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -65,6 +71,6 @@ jobs:
         with:
           webhook_url: ${{ secrets.TEAMS_WEBHOOK }}
           title: "CD: ${{ github.repository }}"
-          message: '<p style="color:#${{ steps.compute.outputs.tone }}"><b>[${{ steps.compute.outputs.prefix }}]</b></p> <u>${{ inputs.message }}. <b>Release Id:</b> ${{ inputs.release_tag }}, <b>Initiated by:</b> ${{ github.actor }}</u>'
+          message: '<p style="color:#${{ steps.compute.outputs.tone }}"><b>[${{ steps.compute.outputs.prefix }}]</b></p> <u>${{ inputs.message }}. <b>Release Id:</b> ${{ inputs.release_tag }}, <b>Initiated by:</b> ${{ github.actor }}, <b>Time (UTC):</b> ${{ steps.ts.outputs.utc }}</u>'
           color: ${{ steps.compute.outputs.tone }}
           button_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
