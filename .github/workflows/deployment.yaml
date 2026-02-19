@@ -81,6 +81,7 @@ jobs:
     secrets:
       ELASTIC_HOST: ${{ secrets.ELASTIC_HOST }}
       ELASTIC_KEY: ${{ secrets.ELASTIC_KEY }}
+      ELASTIC_INDEX: ${{ secrets.ELASTIC_INDEX }}
 
   workflow-summary:
     name: Compute overall workflow state
