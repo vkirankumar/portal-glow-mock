@@ -21,5 +21,5 @@ jobs:
   deploy-web-public-agile:
     uses: ./.github/workflows/deployment.yaml
     with:
-      helm_env: "agile"
+      helm_env: "agilee"
     secrets: inherit

@@ -14,6 +14,7 @@ jobs:
     secrets: inherit
 
   notify-deployment-start:
+    if: ${{ inputs.helm_env == 'agile' }}
     needs: generate-release-tag
     uses: ./.github/workflows/notify-events-new.yaml
     with:
@@ -106,6 +107,7 @@ jobs:
           fi
 
   notify-workflow-status:
+    if: ${{ inputs.helm_env == 'agile' }}
     name: notify overall workflow result
     needs:
       [
@@ -115,7 +117,6 @@ jobs:
         chart-tagger,
         port-logs,
       ]
-    if: always()
     uses: ./.github/workflows/notify-events-new.yaml
     with:
       state: ${{ needs.workflow-summary.outputs.state }}
