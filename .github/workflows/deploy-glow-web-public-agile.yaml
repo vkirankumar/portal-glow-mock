@@ -19,6 +19,6 @@ on:
 
 jobs:
   deploy-web-public-agile:
-    uses: ./.github/workflows/deployment.yaml@main
+    uses: ./.github/workflows/deployment.yaml
     with:
       helm_env: "agile"
