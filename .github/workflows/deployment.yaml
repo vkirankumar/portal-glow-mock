@@ -9,18 +9,20 @@ on:
         description: "Helm Chart Environment"
 
 jobs:
+  generate-release-tag:
+    uses: ./.github/workflows/generate-release-tag.yaml
+    secrets: inherit
+
   notify-deployment-start:
+    needs: generate-release-tag
     uses: ./.github/workflows/notify-events-new.yaml
     with:
       state: "running"
+      release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
       title: "CD: ${{ github.repository }}: <b>Deployment Started.</b>"
       message: "<b>React Portal Deployment started in ${{ inputs.helm_env}} environment.</b>"
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
-
-  generate-release-tag:
-    uses: ./.github/workflows/generate-release-tag.yaml
-    secrets: inherit
 
   build-publish-docker:
     needs: generate-release-tag
