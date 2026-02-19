@@ -10,7 +10,6 @@ on:
 
 jobs:
   notify-deployment-start:
-    if: success() || failure() || cancelled()
     uses: ./.github/workflows/notify-events-new.yaml
     with:
       state: "running"
