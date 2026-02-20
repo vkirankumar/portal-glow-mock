@@ -74,11 +74,12 @@ jobs:
               }'
 
   port-logs:
-    if: success() || failure() || cancelled()
+    if: always()
     needs: [generate-release-tag, build-publish-docker, chart-tagger]
     uses: ./.github/workflows/post-logs-to-elastic.yaml
     with:
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
+      helm_env: ${{ inputs.helm_env }}
     secrets:
       ELASTIC_HOST: ${{ secrets.ELASTIC_HOST }}
       ELASTIC_KEY: ${{ secrets.ELASTIC_KEY }}
@@ -119,6 +120,7 @@ jobs:
       ]
     uses: ./.github/workflows/notify-events-new.yaml
     with:
+      release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
       state: ${{ needs.workflow-summary.outputs.state }}
       title: "CD: ${{ github.repository }} - Workflow completed"
       message: >

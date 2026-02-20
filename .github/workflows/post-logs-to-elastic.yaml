@@ -7,6 +7,10 @@ on:
         description: "The unique release tag"
         type: string
         required: true
+      helm_env:
+        description: "Helm Chart Environment"
+        type: string
+        required: true
     secrets:
       ELASTIC_HOST:
         required: true
@@ -53,6 +57,7 @@ jobs:
                            repo: context.repo.repo,
                            run_id: context.runId,
                            release_id: process.env.RELEASE_TAG,
+                           helm_env: process.env.HELM_ENV,
                            actor: process.env.ACTOR,
                            origin: 'github'
                        }
