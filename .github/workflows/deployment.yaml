@@ -20,7 +20,7 @@ jobs:
     with:
       state: "running"
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
-      title: "CD: ${{ github.repository }}: <b>Deployment Started.</b>"
+      title: "<b>Deployment Started.</b>"
       message: "<b>React Portal Deployment started in ${{ inputs.helm_env}} environment.</b>"
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
@@ -122,7 +122,7 @@ jobs:
     with:
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
       state: ${{ needs.workflow-summary.outputs.state }}
-      title: "CD: ${{ github.repository }} - Workflow completed"
+      title: "<b>Deployment completed.</b>"
       message: >
         Workflow: ${{ github.workflow }}
         Run: ${{ github.run_id }}

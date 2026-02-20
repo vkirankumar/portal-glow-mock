@@ -70,7 +70,7 @@ jobs:
         uses: ./.github/actions/teams-notify
         with:
           webhook_url: ${{ secrets.TEAMS_WEBHOOK }}
-          title: "CD: ${{ github.repository }}"
+          title: "CD: ${{ github.repository }}, ${{ inputs.title }}"
           message: '<p style="color:#${{ steps.compute.outputs.tone }}"><b>[${{ steps.compute.outputs.prefix }}]</b></p> <u>${{ inputs.message }}. <b>Release Id:</b> ${{ inputs.release_tag }}, <b>Initiated by:</b> ${{ github.actor }}, <b>Time (UTC):</b> ${{ steps.ts.outputs.utc }}</u>'
           color: ${{ steps.compute.outputs.tone }}
           button_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
