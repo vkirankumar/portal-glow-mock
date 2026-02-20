@@ -52,12 +52,12 @@ export default async function shiplogs ({ github, context, core }) {
       body: JSON.stringify(body),
     });
 
-    const respJson = await response.json().catch(() => ({}));
+    
     if (!response.ok) {
-      core.warning(`Elastic error: ${response.status} ${response.statusText}`);
-      core.warning(`Response: ${JSON.stringify(respJson)}`);
+      const txt = await response.text().catch(() => "");
+      core.warning(`Elastic error: ${response.status} ${response.statusText} ${txt}`);
     } else {
       core.info(`Indexed job ${job.name}`);
     }
   }
-};
+}
