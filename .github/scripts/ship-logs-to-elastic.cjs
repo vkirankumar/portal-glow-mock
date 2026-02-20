@@ -1,5 +1,5 @@
-// .github/scripts/ship-job-results.js
-export default async function shiplogs ({ github, context, core }) {
+// .github/scripts/ship-job-results.cjs
+module.exports = async ({ github, context, core }) => {
   const runId = context.runId;
 
   const { data } = await github.rest.actions.listJobsForWorkflowRun({
@@ -60,4 +60,4 @@ export default async function shiplogs ({ github, context, core }) {
       core.info(`Indexed job ${job.name}`);
     }
   }
-}
+};
