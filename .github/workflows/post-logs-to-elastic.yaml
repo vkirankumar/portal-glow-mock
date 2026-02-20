@@ -24,6 +24,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Ship job results
         uses: actions/github-script@v7
         env:
