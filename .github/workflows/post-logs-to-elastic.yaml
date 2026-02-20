@@ -34,4 +34,6 @@ jobs:
           HELM_ENV: ${{ inputs.helm_env }}
           ACTOR: ${{ github.actor }}
         with:
-          script-file: ./.github/scripts/ship-logs-to-elastic.js
+          script: |
+            const ship = require('./.github/scripts/ship-logs-to-elastic.js');
+            await ship({ github, context, core});
