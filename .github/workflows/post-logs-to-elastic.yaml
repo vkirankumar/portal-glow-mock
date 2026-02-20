@@ -25,6 +25,7 @@ jobs:
 
     steps:
       - name: Ship job results
+        uses: actions/github-script@v7
         env:
           ELASTIC_INDEX: ${{ secrets.ELASTIC_INDEX }}
           ELASTIC_HOST: ${{ secrets.ELASTIC_HOST }}
@@ -32,6 +33,5 @@ jobs:
           RELEASE_TAG: ${{ inputs.release_tag }}
           HELM_ENV: ${{ inputs.helm_env }}
           ACTOR: ${{ github.actor }}
-        uses: actions/github-script@v7
         with:
           script-file: ./.github/scripts/ship-logs-to-elastic.js
