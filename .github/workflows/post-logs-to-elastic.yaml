@@ -37,13 +37,5 @@ jobs:
           ACTOR: ${{ github.actor }}
         with:
           script: |
-            const path = require('path');
-            const { pathToFileURL } = require('url');
-
-            const abspath = path.join(process.cwd(), '.github', 'scripts', 'ship-logs-to-elastic.js');
-            const fileURL = pathToFileURL(abspath).href;
-
-            const mod = await import(fileURL);
-            const shiplogs = mod.default;
-
+            const shiplogs = require('./.github/scripts/ship-logs-to-elastic.js')
             await shiplogs({ github, context, core });
