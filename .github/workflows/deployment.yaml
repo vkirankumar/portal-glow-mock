@@ -108,7 +108,7 @@ jobs:
           fi
 
   notify-workflow-status:
-    if: ${{ inputs.helm_env == 'agile' }}
+    if: ${{ always() && inputs.helm_env == 'agile' }}
     name: notify overall workflow result
     needs:
       [

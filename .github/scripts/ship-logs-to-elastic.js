@@ -1,5 +1,5 @@
 // .github/scripts/ship-job-results.js
-module.exports = async ({ github, context, core }) => {
+export default async function shiplogs ({ github, context, core }) {
   const runId = context.runId;
 
   const { data } = await github.rest.actions.listJobsForWorkflowRun({
