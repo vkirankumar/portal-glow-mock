@@ -19,7 +19,7 @@ on:
 
 jobs:
   deploy-web-public-agile:
-    uses: ./.github/workflows/deployment.yaml
+    uses: nkumar88/devops-tools/.github/workflows/deployment.yaml@main
     with:
       helm_env: "agile"
     secrets: inherit
