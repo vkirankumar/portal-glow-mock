@@ -28,8 +28,8 @@ jobs:
                      });
 
                      console.log( `Total successful runs: ${runs.total_count}` );
-                     if (runs.length > 0) {
-                        const lastSuccessfulRun = runs[0];
+                     if (runs.workflow_runs.length > 0) {
+                        const lastSuccessfulRun = runs.workflow_runs[0];
                         console.log(`Last successful run commit hash: ${lastSuccessfulRun.head_sha}`);
                      } else {
                         console.log('No successful runs found for the specified workflow.');
