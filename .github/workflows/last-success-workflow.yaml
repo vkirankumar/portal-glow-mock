@@ -36,7 +36,8 @@ jobs:
                      } else {
                         console.log('No successful runs found for the specified workflow.');
                      }
-
+            - name: Checkout code
+              uses: actions/checkout@v3
             - name: Get commit differences
               run: |
-                    git diff 5362790f815be89a35397ef580d0416981d459e7 ${{ steps.get_last_success.outputs.last_success_commit }} 
+                    git diff 5362790f815be89a35397ef580d0416981d459e7 ${{ steps.get_last_success.outputs.last_success_commit }} --name-only
