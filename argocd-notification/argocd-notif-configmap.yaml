@@ -6,13 +6,13 @@ metadata:
 
 data:
   service.webhook.es: |
-      url: https://my-observability-project-c8cf0b.es.us-east-1.aws.elastic.cloud:443/portals-glow-cicd/_doc
+      url: https://da26b69ba06d492da337b32ae28a29b1.eu-central-1.aws.cloud.es.io/logs-portals-glow-cicd-prod-000001/_doc
       method: POST
       headers:
         - name: Content-Type
           value: application/json
         - name: Authorization
-          value: ApiKey RkVwQS01c0JWOVN2Q3RQQ0FPOXk6WmhIQ0ZLLVlUOXNybGE3eFFkdHpqQQ==
+          value: ApiKey Wnk0VGNad0JTby1FZm9aZlg2VGM6MkgyTk5idk9RbE9UQmxJNUs5UHFqUQ==
 
   template.es: |
       webhook:
@@ -38,26 +38,32 @@ data:
               "origin": "argocd"
             }
 
-  trigger.on-all: |
-    - when: app.status.operationState.phase == 'Succeeded'
+  trigger.on-deployed: |
+    - when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
+      oncePer: app.status.sync.revision
       send: [es]
-    - when: app.status.operationState.phase == 'Unknown'
-      send: [es]
-    - when: app.status.operationState.phase == 'Error'
-      send: [es]
-    - when: app.status.operationState.phase == 'Failed'
-      send: [es]
-    - when: app.status.health.status == 'Degraded'
-      send: [es]
-    - when: app.status.operationState.phase == 'Running'
-      send: [es]
-    - when: app.status.health.status == 'Healthy'
-      send: [es]
-    - when: true
-      send: [es]
+
+  # trigger.on-all: |
+  #   - when: app.status.operationState.phase == 'Succeeded'
+  #     send: [es]
+  #   - when: app.status.operationState.phase == 'Unknown'
+  #     send: [es]
+  #   - when: app.status.operationState.phase == 'Error'
+  #     send: [es]
+  #   - when: app.status.operationState.phase == 'Failed'
+  #     send: [es]
+  #   - when: app.status.health.status == 'Degraded'
+  #     send: [es]
+  #   - when: app.status.operationState.phase == 'Running'
+  #     send: [es]
+  #   - when: app.status.health.status == 'Healthy'
+  #     send: [es]
+  #   - when: true
+  #     send: [es]
 
   subscriptions: |
     - recipients:
         - es
       triggers:
-        - on-all
+        - on-deployed
+  # - on-all
