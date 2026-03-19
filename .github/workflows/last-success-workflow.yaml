@@ -16,6 +16,7 @@ jobs:
             #         https://api.github.com/repos/vkirankumar/portal-glow-mock/actions/workflows/deploy-to-prod.yaml/runs
 
             - name: Get last successful commit hash
+              id: get_last_success
               uses: actions/github-script@v7
               with:
                  script: |
@@ -31,6 +32,11 @@ jobs:
                      if (runs.workflow_runs.length > 0) {
                         const lastSuccessfulRun = runs.workflow_runs[0];
                         console.log(`Last successful run commit hash: ${lastSuccessfulRun.head_sha}`);
+                        core.setOutput("last_success_commit", lastSuccessfulRun.head_sha);
                      } else {
                         console.log('No successful runs found for the specified workflow.');
                      }
+
+            - name: Get commit differences
+              run: |
+                    git diff 5362790f815be89a35397ef580d0416981d459e7 ${{ steps.get_last_success.outputs.last_success_commit }} 
