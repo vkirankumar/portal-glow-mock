@@ -1,0 +1,68 @@
+name: "MS Teams notify (internal)"
+description: "Post a message to Microsoft Teams via webhook"
+inputs:
+  webhook_url:
+    required: true
+    description: "Teams webhook URL"
+  title:
+    required: false
+    default: "GitHub Actions"
+  message:
+    required: true
+  color:
+    required: false
+    default: "2EB886" # green
+  button_text:
+    required: false
+    default: "View run"
+  button_url:
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Post to Teams
+      shell: bash
+      env:
+        WEBHOOK_URL: ${{ inputs.webhook_url }}
+        TITLE: ${{ inputs.title }}
+        MESSAGE: ${{ inputs.message }}
+        COLOR: ${{ inputs.color }}
+        BUTTON_TEXT: ${{ inputs.button_text }}
+        BUTTON_URL: ${{ inputs.button_url }}
+      run: |
+        set -euo pipefail
+
+        if [ -n "${BUTTON_URL}" ]; then
+          ACTIONS=$(cat <<EOF
+        [{
+        "@type": "OpenUri",
+        "name": "${BUTTON_TEXT}",
+        "targets": [{ "os": "default", "uri": "${BUTTON_URL}" }]
+        }]
+        EOF
+        )
+        else
+          ACTIONS="[]"
+        fi
+
+        payload=$(jq -n \
+        --arg type "MessageCard" \
+        --arg context "https://schema.org/extensions" \
+        --arg color "$COLOR" \
+        --arg title "$TITLE" \
+        --arg message "$MESSAGE" \
+        --argjson actions "$ACTIONS" \
+        '{
+        "@type": $type,
+        "@context": $context,
+        "themeColor": $color,
+        "summary": $title,
+        "title": $title,
+        "text": $message,
+        "potentialAction": $actions
+        }'
+        )
+
+        curl -sS -X POST -H "Content-Type: application/json" --data "$payload" "$WEBHOOK_URL"

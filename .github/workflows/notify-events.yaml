@@ -4,15 +4,15 @@ on:
   workflow_call:
     inputs:
       notfication_summary:
-        description: 'Job summary to be sent with the notification.'
+        description: "Job summary to be sent with the notification."
         type: string
         required: true
       initial-state:
-        description: 'Nofity initial state'
+        description: "Nofity initial state"
         type: string
-        default: 'false'
+        default: "false"
       release_tag:
-        description: 'The unique release tag'
+        description: "The unique release tag"
         type: string
         required: true
     secrets:
@@ -24,59 +24,54 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Compute worflow state
-      id: compute
-      env:
+      - name: Compute worflow state
+        id: compute
+        env:
           RELEASE_TAG: ${{ inputs.release_tag }}
           ACTOR: ${{ github.actor }}
           STATE: ${{ inputs.initial-state }}
-      uses: actions/github-script@v7
-      with:
-        script: |
-                  async function main() {
-                          const runId = context.runId;
-                          const { data } = await github.rest.actions.listJobsForWorkflowRun({
-                              owner: context.repo.owner,
-                              repo: context.repo.repo,
-                              run_id: runId
-                          });
-
-                          // Exclude skipped and notify job logs
-                          const jobs = data.jobs.filter(job => !!job.conclusion && job.conclusion !== 'skipped');
-                          const status = jobs.some(job => job.conclusion === 'failure');
-                          const prefix =  status ? 'FAILED' : 'SUCCESS';
-                          core.setOutput("tone", (status && process.env.STATE === 'false') ? 'FF2104' : '07B11E');
-                          core.setOutput("prefix", process.env.STATE === 'true' ? 'STARTED' : prefix);                      
-                      }
-                    main().catch(err => {
-                        core.setFailed(err.message);
+        uses: actions/github-script@v7
+        with:
+          script: |
+            async function main() {
+                    const runId = context.runId;
+                    const { data } = await github.rest.actions.listJobsForWorkflowRun({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        run_id: runId
                     });
-             
 
-    - name: Notify dedicated teams channel
-      uses: jdcargile/ms-teams-notification@v1.4
-      with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK }}
-        notification-summary: '<p style="color:#${{ steps.compute.outputs.tone }}"><b>[${{ steps.compute.outputs.prefix }}]</b></p> <u>${{ inputs.notfication_summary }}. <b>Release Id:</b> ${{ inputs.release_tag }}, Initiated by: ${{ github.actor }}</u>'
-        # notification-summary: React Portals PROD deployment with release-id '${{ inputs.release_tag }}' initiated by '${{ github.actor }} has ${{ inputs.job_status }}'.
-        # notification-summary: '<!DOCTYPE html>
-        #                           <html>
-        #                             <title>Production Release</title>
-        #                             <body>
-        #                               <ul>
-        #                                 <li><b>Release Id:   </b>${{ inputs.release_tag }}</li>
-        #                                 <li><b>Change Request Number: </b>Test</li>
-        #                                 <li><b>Release Notes: </b>Test</li>
-        #                                 <li><b>Started By: </b>${{ github.actor }}</li>
-        #                                 <li><b>Started At: </b>Test</li>
-        #                               <ul>
-        #                             </body>
-        #                           </html>'
-        notification-color: ${{ steps.compute.outputs.tone }}
-        timezone: Europe/Amsterdam
-        verbose-logging: true
+                    // Exclude skipped and notify job logs
+                    const jobs = data.jobs.filter(job => !!job.conclusion && job.conclusion !== 'skipped');
+                    const status = jobs.some(job => job.conclusion === 'failure');
+                    const prefix =  status ? 'FAILED' : 'SUCCESS';
+                    core.setOutput("tone", (status && process.env.STATE === 'false') ? 'FF2104' : '07B11E');
+                    core.setOutput("prefix", process.env.STATE === 'true' ? 'STARTED' : prefix);                      
+                }
+              main().catch(err => {
+                  core.setFailed(err.message);
+              });
 
-                
-
-            
+      - name: Notify dedicated teams channel
+        uses: jdcargile/ms-teams-notification@v1.4
+        with:
+          github-token: ${{ github.token }}
+          ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK }}
+          notification-summary: '<p style="color:#${{ steps.compute.outputs.tone }}"><b>[${{ steps.compute.outputs.prefix }}]</b></p> <u>${{ inputs.notfication_summary }}. <b>Release Id:</b> ${{ inputs.release_tag }}, Initiated by: ${{ github.actor }}</u>'
+          # notification-summary: React Portals PROD deployment with release-id '${{ inputs.release_tag }}' initiated by '${{ github.actor }} has ${{ inputs.job_status }}'.
+          # notification-summary: '<!DOCTYPE html>
+          #                           <html>
+          #                             <title>Production Release</title>
+          #                             <body>
+          #                               <ul>
+          #                                 <li><b>Release Id:   </b>${{ inputs.release_tag }}</li>
+          #                                 <li><b>Change Request Number: </b>Test</li>
+          #                                 <li><b>Release Notes: </b>Test</li>
+          #                                 <li><b>Started By: </b>${{ github.actor }}</li>
+          #                                 <li><b>Started At: </b>Test</li>
+          #                               <ul>
+          #                             </body>
+          #                           </html>'
+          notification-color: ${{ steps.compute.outputs.tone }}
+          timezone: Europe/Amsterdam
+          verbose-logging: true

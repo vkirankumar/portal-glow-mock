@@ -1,36 +1,27 @@
-name: Deploy to prod
+name: Build and deploy a Docker image
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      cr:
-        description: "ServiceNow change request number"
+      helm_env:
         type: string
         required: true
-        default: "CHR1234"
-      release_note:
-        description: "Confluence link to release notes"
-        type: string
-        required: true
-        default: "https://confluence.odido.nl/release_note.html"
-      jira_release:
-        description: "Jira release"
-        type: string
+        description: "Helm Chart Environment"
 
 jobs:
   generate-release-tag:
     uses: ./.github/workflows/generate-release-tag.yaml
     secrets: inherit
 
-  notify-release-tag-gen-finished:
-    if: success() || failure() || cancelled()
-    uses: ./.github/workflows/notify-events-new.yaml
+  notify-deployment-start:
+    if: ${{ inputs.helm_env == 'agile' }}
     needs: generate-release-tag
+    uses: ./.github/workflows/notify-events-new.yaml
     with:
-      state: ${{ needs.generate-release-tag.result }}
+      state: "running"
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
-      title: "CD: ${{ github.repository }}: <b>Release tag generation finished.</b>"
-      message: "<b>PROD Deployment:</b> Release tag generation finished with state <b>${{ needs.generate-release-tag.result }}.</b>"
+      title: "<b>Deployment Started.</b>"
+      message: "<b>React Portal Deployment started in ${{ inputs.helm_env}} environment.</b>"
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
 
@@ -62,18 +53,6 @@ jobs:
       - name: Pass release_tag to next job
         run: echo "release_tag=${{ needs.generate-release-tag.outputs.release_tag }}" >> "$GITHUB_OUTPUT"
 
-  notify-build-publish-docker-finished:
-    if: success() || failure() || cancelled()
-    uses: ./.github/workflows/notify-events-new.yaml
-    needs: [generate-release-tag, build-publish-docker]
-    with:
-      state: ${{ needs.build-publish-docker.result }}
-      release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
-      title: "CD: ${{ github.repository }}: <b>Build publish to docker finished.</b>"
-      message: "<b>PROD Deployment:</b> Build publish to docker finished with state <b>${{ needs.build-publish-docker.result }}.</b>"
-    secrets:
-      TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
-
   chart-tagger:
     needs: [generate-release-tag, build-publish-docker]
     runs-on: ubuntu-latest
@@ -94,40 +73,17 @@ jobs:
                   }
               }'
 
-  notify-chart-tagger-finished:
-    if: success() || failure() || cancelled()
-    uses: ./.github/workflows/notify-events-new.yaml
-    needs: [generate-release-tag, chart-tagger]
-    with:
-      state: ${{ needs.chart-tagger.result }}
-      release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
-      title: "CD: ${{ github.repository }}: <b>Chart tagger finished.</b>"
-      message: "<b>PROD Deployment:</b> Chart tagger finished with state <b>${{ needs.chart-tagger.result }}.</b>"
-    secrets:
-      TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
-
   port-logs:
-    if: success() || failure() || cancelled()
+    if: always()
     needs: [generate-release-tag, build-publish-docker, chart-tagger]
     uses: ./.github/workflows/post-logs-to-elastic.yaml
     with:
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
+      helm_env: ${{ inputs.helm_env }}
     secrets:
       ELASTIC_HOST: ${{ secrets.ELASTIC_HOST }}
       ELASTIC_KEY: ${{ secrets.ELASTIC_KEY }}
       ELASTIC_INDEX: ${{ secrets.ELASTIC_INDEX }}
-
-  notify-port-logs-finished:
-    if: success() || failure() || cancelled()
-    uses: ./.github/workflows/notify-events-new.yaml
-    needs: [generate-release-tag, port-logs]
-    with:
-      state: ${{ needs.port-logs.result }}
-      release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
-      title: "CD: ${{ github.repository }}: <b>Port logs finished.</b>"
-      message: "<b>PROD Deployment:</b> Port logs finished with state <b>${{ needs.port-logs.result }}.</b>"
-    secrets:
-      TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
 
   workflow-summary:
     name: Compute overall workflow state
@@ -152,6 +108,7 @@ jobs:
           fi
 
   notify-workflow-status:
+    if: ${{ always() && inputs.helm_env == 'agile' }}
     name: notify overall workflow result
     needs:
       [
@@ -161,11 +118,11 @@ jobs:
         chart-tagger,
         port-logs,
       ]
-    if: always()
     uses: ./.github/workflows/notify-events-new.yaml
     with:
+      release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
       state: ${{ needs.workflow-summary.outputs.state }}
-      title: "CD: ${{ github.repository }} - Workflow completed"
+      title: "<b>Deployment completed.</b>"
       message: >
         Workflow: ${{ github.workflow }}
         Run: ${{ github.run_id }}

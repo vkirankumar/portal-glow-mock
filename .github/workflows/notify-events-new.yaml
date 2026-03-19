@@ -1,0 +1,76 @@
+name: Notify events
+
+on:
+  workflow_call:
+    inputs:
+      title:
+        description: "Job summary to be sent with the notification."
+        type: string
+        required: true
+      message:
+        description: "Notification text to be sent out."
+        type: string
+        required: true
+      initial-state:
+        description: "Nofity initial state"
+        type: string
+        default: "false"
+      state:
+        required: true
+        type: string # running|success|failure|cancelled
+      release_tag:
+        description: "The unique release tag"
+        type: string
+    secrets:
+      TEAMS_WEBHOOK:
+        required: true
+
+jobs:
+  notify-team:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Compute notification colors
+        id: compute
+        env:
+          STATE: ${{ inputs.state }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const state = (process.env.STATE || '').toLowerCase();
+
+            // Teams themeColor expects hex WITHOUT '#'
+            const colors = {
+              running:   '17A2B8', // blue
+              success:   '07B11E', // green
+              failure:   'FF2104', // red
+              cancelled: 'FFC107'  // yellow
+            };
+
+            const prefixes = {
+              running: 'STARTED',
+              success: 'SUCCESS',
+              failure: 'FAILED',
+              cancelled: 'CANCELLED'
+            };
+
+            core.setOutput('tone', colors[state] || '17A2B8');
+            core.setOutput('prefix', prefixes[state] || state.toUpperCase() || 'STATUS');
+
+      - name: Compute timestamp
+        id: ts
+        shell: bash
+        run: |
+          echo "utc=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Notify dedicated teams channel
+        uses: ./.github/actions/teams-notify
+        with:
+          webhook_url: ${{ secrets.TEAMS_WEBHOOK }}
+          title: "CD: ${{ github.repository }}, ${{ inputs.title }}"
+          message: '<p style="color:#${{ steps.compute.outputs.tone }}"><b>[${{ steps.compute.outputs.prefix }}]</b></p> <u>${{ inputs.message }}. <b>Release Id:</b> ${{ inputs.release_tag }}, <b>Initiated by:</b> ${{ github.actor }}, <b>Time (UTC):</b> ${{ steps.ts.outputs.utc }}</u>'
+          color: ${{ steps.compute.outputs.tone }}
+          button_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
