@@ -7,13 +7,6 @@ jobs:
     workflow-runs:
         runs-on: ubuntu-latest
         steps:
-            # - name: Dispatch chart tagger event
-            #   run: |
-            #     curl -L \
-            #         -H "Accept: application/vnd.github+json" \
-            #         -H "Authorization: Bearer ${{ secrets.CLASSIC_PAT_CROSS_REPO }}" \
-            #         -H "X-GitHub-Api-Version: 2026-03-10" \
-            #         https://api.github.com/repos/vkirankumar/portal-glow-mock/actions/workflows/deploy-to-prod.yaml/runs
 
             - name: Get last successful commit hash
               id: get_last_success
@@ -36,11 +29,12 @@ jobs:
                      } else {
                         console.log('No successful runs found for the specified workflow.');
                      }
+
             - name: Checkout code
               uses: actions/checkout@v4
               with:
                 fetch-depth: 0  # Fetch all history for accurate git diff
+                
             - name: Get commit differences
               run: |
-                    git fetch --all
                     git diff ${{ github.sha }} ${{ steps.get_last_success.outputs.last_success_commit }} --name-only
