@@ -37,7 +37,9 @@ jobs:
                         console.log('No successful runs found for the specified workflow.');
                      }
             - name: Checkout code
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 0  # Fetch all history for accurate git diff
             - name: Get commit differences
               run: |
                     git fetch --all
