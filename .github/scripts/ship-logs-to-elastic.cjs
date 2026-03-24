@@ -53,11 +53,11 @@ module.exports = async ({ github, context, core }) => {
     });
 
     
-    if (!response.ok) {
-      const txt = await response.text().catch(() => "");
-      core.warning(`Elastic error: ${response.status} ${response.statusText} ${txt}`);
-    } else {
-      core.info(`Indexed job ${job.name}`);
-    }
+    // if (!response.ok) {
+    //   const txt = await response.text().catch(() => "");
+    //   core.warning(`Elastic error: ${response.status} ${response.statusText} ${txt}`);
+    // } else {
+    //   core.info(`Indexed job ${job.name}`);
+    // }
   }
 };
