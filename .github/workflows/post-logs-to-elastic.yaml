@@ -11,6 +11,7 @@ on:
         description: "Helm Chart Environment"
         type: string
         required: true
+        default: "prod"
     secrets:
       ELASTIC_HOST:
         required: true
