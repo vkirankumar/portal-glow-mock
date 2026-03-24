@@ -112,6 +112,7 @@ jobs:
     uses: ./.github/workflows/post-logs-to-elastic.yaml
     with:
       release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
+      helm_env: "prod"
     secrets:
       ELASTIC_HOST: ${{ secrets.ELASTIC_HOST }}
       ELASTIC_KEY: ${{ secrets.ELASTIC_KEY }}
