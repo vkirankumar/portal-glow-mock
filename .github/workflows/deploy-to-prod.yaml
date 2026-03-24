@@ -106,28 +106,28 @@ jobs:
     secrets:
       TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
 
-  # port-logs:
-  #   if: success() || failure() || cancelled()
-  #   needs: [generate-release-tag, build-publish-docker, chart-tagger]
-  #   uses: ./.github/workflows/post-logs-to-elastic.yaml
-  #   with:
-  #     release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
-  #   secrets:
-  #     ELASTIC_HOST: ${{ secrets.ELASTIC_HOST }}
-  #     ELASTIC_KEY: ${{ secrets.ELASTIC_KEY }}
-  #     ELASTIC_INDEX: ${{ secrets.ELASTIC_INDEX }}
+  port-logs:
+    if: success() || failure() || cancelled()
+    needs: [generate-release-tag, build-publish-docker, chart-tagger]
+    uses: ./.github/workflows/post-logs-to-elastic.yaml
+    with:
+      release_tag: ${{ needs.generate-release-tag.outputs.release_tag}}
+    secrets:
+      ELASTIC_HOST: ${{ secrets.ELASTIC_HOST }}
+      ELASTIC_KEY: ${{ secrets.ELASTIC_KEY }}
+      ELASTIC_INDEX: ${{ secrets.ELASTIC_INDEX }}
 
-  # notify-port-logs-finished:
-  #   if: success() || failure() || cancelled()
-  #   uses: ./.github/workflows/notify-events-new.yaml
-  #   needs: [generate-release-tag, port-logs]
-  #   with:
-  #     state: ${{ needs.port-logs.result }}
-  #     release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
-  #     title: "CD: ${{ github.repository }}: <b>Port logs finished.</b>"
-  #     message: "<b>PROD Deployment:</b> Port logs finished with state <b>${{ needs.port-logs.result }}.</b>"
-  #   secrets:
-  #     TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+  notify-port-logs-finished:
+    if: success() || failure() || cancelled()
+    uses: ./.github/workflows/notify-events-new.yaml
+    needs: [generate-release-tag, port-logs]
+    with:
+      state: ${{ needs.port-logs.result }}
+      release_tag: ${{ needs.generate-release-tag.outputs.release_tag }}
+      title: "CD: ${{ github.repository }}: <b>Port logs finished.</b>"
+      message: "<b>PROD Deployment:</b> Port logs finished with state <b>${{ needs.port-logs.result }}.</b>"
+    secrets:
+      TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
 
   workflow-summary:
     name: Compute overall workflow state
