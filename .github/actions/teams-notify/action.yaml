@@ -65,4 +65,4 @@ runs:
         }'
         )
 
-        curl -sS -X POST -H "Content-Type: application/json" --data "$payload" "$WEBHOOK_URL"
+        # curl -sS -X POST -H "Content-Type: application/json" --data "$payload" "$WEBHOOK_URL"
