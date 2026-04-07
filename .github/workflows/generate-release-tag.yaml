@@ -34,6 +34,7 @@ jobs:
                 exit 1
               fi
               release_id=$(echo "$response" | jq -r '.release_id')
+              echo "Generated release ID: $release_id"
               echo "release_tag=$release_id" >> $GITHUB_OUTPUT
             # FULL_HASH=$(git rev-parse --short HEAD)
             # UNIQUE_ID=_${{ github.run_id }}
