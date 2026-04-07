@@ -5,6 +5,13 @@ metadata:
   namespace: argocd
 
 data:
+  service.webhook.teams-notification: |
+    url: https://tmnlso.webhook.office.com/webhookb2/3d718cb0-5027-4fec-8b8f-88ee07a07361@63a8df83-063c-4312-a508-dc01b7508661/IncomingWebhook/ee2972f67e8f4b6c8f353eefec88e4e5/6ab21cec-5e11-4f0d-a141-0927e4274ec6/V2M_UcWhToRC5agc2mdwoc2ej2p6V7siDQ9Qla3hxYkRA1
+    method: POST
+    headers:
+      - name: Content-Type
+        value: application/json
+      
   service.webhook.es: |
       url: https://da26b69ba06d492da337b32ae28a29b1.eu-central-1.aws.cloud.es.io/logs-portals-glow-cicd-prod-000001/_doc
       method: POST
@@ -12,7 +19,78 @@ data:
         - name: Content-Type
           value: application/json
         - name: Authorization
-          value: ApiKey Wnk0VGNad0JTby1FZm9aZlg2VGM6MkgyTk5idk9RbE9UQmxJNUs5UHFqUQ==
+          value: ApiKey LTNBM0FaMEJHY3A4OXZfVFdkYUQ6WlJqaGZPYnBTVzZacjY3X0FodzBIZw==
+
+  template.teams-notification: |
+      webhook:
+          teams-notification:
+            method: POST
+            body: |
+              {{- $timestamp := call .time.Now -}}
+
+              {{- $img := "" -}}
+              {{- if .app.status.summary.images -}}
+                {{- $img = index .app.status.summary.images 0 -}}
+              {{- end -}}
+
+              {{- $tag := "" -}}
+              {{- if contains ":" $img -}}
+                {{- $tag = (split ":" $img )._1 -}}
+              {{- end -}}
+              
+              {{- $color := "#FF2104" -}}
+              {{- if eq .app.status.health.status "Healthy" -}}
+                {{- $color = "#07B11E" -}}
+              {{- end -}}
+
+              {{- $title := "" -}}
+              {{- $preText := "" -}}
+              {{- if eq .app.status.health.status "Healthy" -}}
+                {{- $preText = "[SUCCESS]" -}}
+                {{- $title = (printf " ✅ ArgoCD: Deployment succeeded - %s" .app.metadata.name) -}}
+              {{- else -}}
+                {{- $preText = "[FAILED]" -}}
+                {{- $title = (printf " ❌ ArgoCD: Deployment failed - %s" .app.metadata.name) -}}
+              {{- end -}}
+
+              {
+                "@type": "MessageCard",
+                "@context": "https://schema.org/extensions",
+                "summary": "ArgoCD Notification",
+                
+                "text": "<div style=\"font-size:16px; margin-bottom:10px; border-bottom:solid 10px {{ $color }};  padding-bottom:10px;\">
+                            <b style=\"color:{{ $color }};\">{{ $preText }}</b><b>{{ $title }}</b>
+                        </div>
+                        <div style=\"font-family:Segoe UI, sans-serif; font-size:14px; padding:5px; border-radius:0px;\">
+                          <div style=\"color:gray; font-size:12px;\">
+                              Updated at: <b>{{ $timestamp }}</b>
+                          </div>
+                          <h2 style=\"color:#0078D4; margin-bottom:10px;\"><u>Release Information</u></h2>
+                          <table>
+                            <tr>
+                              <td><b>Service Repository :</b></td>
+                              <td>{{ .app.metadata.name }}</td>
+                            </tr>
+                            <tr>
+                              <td><b>Release ID :</b></td>
+                              <td>{{ $tag }}</td>
+                            </tr>
+                            <tr>
+                              <td><b>Health :</b></td>
+                              <td>{{ .app.status.health.status }}</td>
+                            </tr>
+                          </table>
+                        </div>",
+                  "potentialAction": [{
+                      "@type": "OpenUri",
+                      "name": "View Deployment Status",
+                      "targets": [{
+                              "os": "default",
+                              "uri": "https://eddc60f442084189a14ff71e0fe49f36.eu-central-1.aws.cloud.es.io/s/sre/app/dashboards#/view/63b96f92-3d4b-4bb4-a497-11d8d00cd74d?_g=(filters:!(),refreshInterval:(pause:!t,value:60000),time:(from:%272026-02-26T00:00:00.802Z%27,to:now))&_a=(filters:!((query:(match_phrase:(release_id:%27{{ $tag }}%27)))))"
+                          }
+                      ]
+                  }]
+              }
 
   template.es: |
       webhook:
@@ -38,32 +116,27 @@ data:
               "origin": "argocd"
             }
 
-  trigger.on-deployed: |
-    - when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
-      oncePer: app.status.sync.revision
-      send: [es]
-
-  # trigger.on-all: |
-  #   - when: app.status.operationState.phase == 'Succeeded'
-  #     send: [es]
-  #   - when: app.status.operationState.phase == 'Unknown'
-  #     send: [es]
-  #   - when: app.status.operationState.phase == 'Error'
-  #     send: [es]
-  #   - when: app.status.operationState.phase == 'Failed'
-  #     send: [es]
-  #   - when: app.status.health.status == 'Degraded'
-  #     send: [es]
-  #   - when: app.status.operationState.phase == 'Running'
-  #     send: [es]
-  #   - when: app.status.health.status == 'Healthy'
-  #     send: [es]
-  #   - when: true
-  #     send: [es]
+  trigger.on-all: |
+    - when: app.status.operationState.phase == 'Succeeded'
+      send: [es, teams-notification]
+    - when: app.status.operationState.phase == 'Unknown'
+      send: [es, teams-notification]
+    - when: app.status.operationState.phase == 'Error'
+      send: [es, teams-notification]
+    - when: app.status.operationState.phase == 'Failed'
+      send: [es, teams-notification]
+    - when: app.status.health.status == 'Degraded'
+      send: [es, teams-notification]
+    - when: app.status.operationState.phase == 'Running'
+      send: [es, teams-notification]
+    - when: app.status.health.status == 'Healthy'
+      send: [es, teams-notification]
+    - when: true
+      send: [es, teams-notification]
 
   subscriptions: |
     - recipients:
         - es
+        - teams-notification
       triggers:
-        - on-deployed
-  # - on-all
+        - on-all

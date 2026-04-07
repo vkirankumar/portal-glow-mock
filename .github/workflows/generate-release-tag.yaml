@@ -2,11 +2,6 @@ name: Generate release tag
 
 on:
   workflow_call:
-    inputs:
-      helm_env:
-        type: string
-        required: true
-        description: "Helm Chart Environment"
     outputs:
       release_tag:
         description: 'The unique release tag'
