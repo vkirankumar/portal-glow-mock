@@ -24,7 +24,7 @@ jobs:
               -H "Content-Type: application/json" \
               https://yfoa5flvfk.execute-api.us-east-1.amazonaws.com/staging/generate-release-id \
               -d '{
-                  "platform": "helm_chart_image_tag_update",
+                  "platform": "git",
                   "env": "prod"
               }')
               echo "Response: $response"
