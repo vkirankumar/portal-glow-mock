@@ -21,7 +21,7 @@ jobs:
         id: vars
         run: |
               response=$(curl -X POST \
-              -H "Accept: application/vnd.github+json" \
+              -H "Content-Type: application/json" \
               https://yfoa5flvfk.execute-api.us-east-1.amazonaws.com/staging/generate-release-id \
               -d '{
                   "platform": "helm_chart_image_tag_update",
