@@ -33,7 +33,7 @@ jobs:
                 echo "Error: API call failed with status $status"
                 exit 1
               fi
-              
+              echo "release_tag=$response.release_id"
               echo "release_tag=$response.release_id" >> $GITHUB_OUTPUT
             # FULL_HASH=$(git rev-parse --short HEAD)
             # UNIQUE_ID=_${{ github.run_id }}
