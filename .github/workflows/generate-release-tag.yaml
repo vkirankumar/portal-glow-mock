@@ -2,6 +2,11 @@ name: Generate release tag
 
 on:
   workflow_call:
+    inputs:
+      helm_env:
+        type: string
+        required: true
+        description: "Helm Chart Environment"
     outputs:
       release_tag:
         description: 'The unique release tag'
@@ -20,6 +25,23 @@ jobs:
       - name: Validate input
         id: vars
         run: |
-            FULL_HASH=$(git rev-parse --short HEAD)
-            UNIQUE_ID=_${{ github.run_id }}
-            echo "release_tag=$FULL_HASH$UNIQUE_ID" >> $GITHUB_OUTPUT
+              response=$(curl -X POST \
+              -H "Accept: application/vnd.github+json" \
+              https://yfoa5flvfk.execute-api.us-east-1.amazonaws.com/staging/generate-release-id \
+              -d '{
+                  "platform": "helm_chart_image_tag_update",
+                  "env": "${{ inputs.helm_env }}",
+              }')
+              echo "Response: $response"
+              status=$(echo "$response" | jq -r '.status')
+              if [ "$status" -ne 200 ]; then
+                echo "Error: API call failed with status $status"
+                exit 1
+              fi
+              
+              echo "release_tag=$response.release_id" >> $GITHUB_OUTPUT
+            # FULL_HASH=$(git rev-parse --short HEAD)
+            # UNIQUE_ID=_${{ github.run_id }}
+            
+            # echo "release_tag=$FULL_HASH$UNIQUE_ID" >> $GITHUB_OUTPUT
+
