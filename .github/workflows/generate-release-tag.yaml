@@ -26,6 +26,7 @@ jobs:
               -d '{
                   "platform": "git",
                   "env": "prod"
+                  "repo": "${{ github.repository }}"
               }')
               echo "Response: $response"
               status=$(echo "$response" | jq -r '.status')
