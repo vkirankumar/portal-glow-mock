@@ -104,7 +104,7 @@ jobs:
               -H "Content-Type: application/json" \
               https://yfoa5flvfk.execute-api.us-east-1.amazonaws.com/staging/start-release \
               -d '{
-                  "release_id": "${{ needs.generate-release-tag.outputs.release_tag }}",
+                  "release_id": "${{ needs.generate-release-tag.outputs.release_tag }}"
               }')
               echo "Response: $response"
               status=$(echo "$response" | jq -r '.status')
