@@ -12,8 +12,6 @@ jobs:
   generate-release-tag:
     uses: ./.github/workflows/generate-release-tag.yaml
     secrets: inherit
-    with:
-      helm_env: ${{ inputs.helm_env }}
 
   notify-deployment-start:
     if: ${{ inputs.helm_env == 'agile' }}
