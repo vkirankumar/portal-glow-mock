@@ -25,7 +25,7 @@ jobs:
               https://yfoa5flvfk.execute-api.us-east-1.amazonaws.com/staging/generate-release-id \
               -d '{
                   "platform": "git",
-                  "env": "prod"
+                  "env": "prod",
                   "repo": "${{ github.repository }}"
               }')
               echo "Response: $response"
