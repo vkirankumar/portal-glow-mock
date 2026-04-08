@@ -95,26 +95,6 @@ jobs:
               }')
               echo "Response: $response"
 
-  start-release:
-    needs: [generate-release-tag, build-publish-docker, chart-tagger]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Start release
-        run: |
-          response=$(curl -X POST \
-              -H "Content-Type: application/json" \
-              https://yfoa5flvfk.execute-api.us-east-1.amazonaws.com/staging/start-release \
-              -d '{
-                  "repo": "${{ github.event.repository.owner.login }}/portal-glow-mock-helm",
-                  "release_id": "${{ needs.generate-release-tag.outputs.release_tag }}"
-              }')
-              echo "Response: $response"
-              status=$(echo "$response" | jq -r '.status')
-              if [ "$status" -ne 200 ]; then
-                echo "Error: API call failed with status $status"
-                exit 1
-              fi
-
   notify-chart-tagger-finished:
     if: success() || failure() || cancelled()
     uses: ./.github/workflows/notify-events-new.yaml
