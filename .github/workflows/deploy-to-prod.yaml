@@ -81,7 +81,7 @@ jobs:
       - name: Dispatch chart tagger event
         run: |
           echo "release_tag=${{ needs.generate-release-tag.outputs.release_tag }}"
-          curl -X POST \
+          response=$(curl -X POST \
               -H "Authorization: Bearer ${{ secrets.CLASSIC_PAT_CROSS_REPO }}" \
               -H "Accept: application/vnd.github+json" \
               https://api.github.com/repos/vkirankumar/portal-glow-mock-helm/dispatches \
@@ -92,7 +92,8 @@ jobs:
                   "chr": "${{ inputs.cr }}",
                   "release_note": "${{ inputs.release_note }}"
                   }
-              }'
+              }')
+              echo "Response: $response"
 
   start-release:
     needs: [generate-release-tag, build-publish-docker, chart-tagger]
@@ -104,6 +105,7 @@ jobs:
               -H "Content-Type: application/json" \
               https://yfoa5flvfk.execute-api.us-east-1.amazonaws.com/staging/start-release \
               -d '{
+                  "repo": "${{ github.event.repository.owner.login }}/portal-glow-mock-helm",
                   "release_id": "${{ needs.generate-release-tag.outputs.release_tag }}"
               }')
               echo "Response: $response"
