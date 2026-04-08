@@ -24,7 +24,7 @@ jobs:
               -H "Content-Type: application/json" \
               https://yfoa5flvfk.execute-api.us-east-1.amazonaws.com/staging/generate-release-id \
               -d '{
-                  "platform": "git",
+                  "platform": "github",
                   "env": "prod",
                   "repo": "${{ github.event.repository.name }}"
               }')
