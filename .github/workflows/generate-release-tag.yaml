@@ -17,28 +17,48 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Validate input
-        id: vars
+      - name: Get ARM Access Token
+        id: arm_token
         run: |
-              response=$(curl -X POST \
-              -H "Content-Type: application/json" \
-              https://yfoa5flvfk.execute-api.us-east-1.amazonaws.com/staging/generate-release-id \
-              -d '{
-                  "platform": "github",
-                  "env": "prod",
-                  "repo": "${{ github.event.repository.name }}"
-              }')
-              echo "Response: $response"
-              status=$(echo "$response" | jq -r '.status')
-              if [ "$status" -ne 200 ]; then
-                echo "Error: API call failed with status $status"
-                exit 1
-              fi
-              release_id=$(echo "$response" | jq -r '.release_id')
-              echo "Generated release ID: $release_id"
-              echo "release_tag=$release_id" >> $GITHUB_OUTPUT
-            # FULL_HASH=$(git rev-parse --short HEAD)
-            # UNIQUE_ID=_${{ github.run_id }}
+          TOKEN=$(curl -s -X POST \
+            "https://bridge-m2m-prod.auth.us-east-1.amazoncognito.com/oauth2/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -u "${{ secrets.COGNITO_CLIENT_ID }}:${{ secrets.COGNITO_CLIENT_SECRET }}" \
+            -d "grant_type=client_credentials" \
+            -d "scope=bridge-api/arm-admin bridge-api/arm-register-release bridge-api/arm-request-approval" \
+            | jq -r '.access_token')
+      
+          echo "ARM_TOKEN=$TOKEN" >> $GITHUB_ENV
+      
+      - name: Register Release
+        run: |
+          curl \
+            -H "Authorization: Bearer $ARM_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d @release.json \
+            https://api.arm.company.com/register-release
+      # - name: Validate input
+      #   id: vars
+      #   run: |
+      #         response=$(curl -X POST \
+      #         -H "Content-Type: application/json" \
+      #         https://yfoa5flvfk.execute-api.us-east-1.amazonaws.com/staging/generate-release-id \
+      #         -d '{
+      #             "platform": "github",
+      #             "env": "prod",
+      #             "repo": "${{ github.event.repository.name }}"
+      #         }')
+      #         echo "Response: $response"
+      #         status=$(echo "$response" | jq -r '.status')
+      #         if [ "$status" -ne 200 ]; then
+      #           echo "Error: API call failed with status $status"
+      #           exit 1
+      #         fi
+      #         release_id=$(echo "$response" | jq -r '.release_id')
+      #         echo "Generated release ID: $release_id"
+      #         echo "release_tag=$release_id" >> $GITHUB_OUTPUT
+      #       # FULL_HASH=$(git rev-parse --short HEAD)
+      #       # UNIQUE_ID=_${{ github.run_id }}
             
-            # echo "release_tag=$FULL_HASH$UNIQUE_ID" >> $GITHUB_OUTPUT
+      #       # echo "release_tag=$FULL_HASH$UNIQUE_ID" >> $GITHUB_OUTPUT
 
