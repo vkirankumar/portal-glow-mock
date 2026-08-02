@@ -20,11 +20,11 @@ jobs:
       - name: Get ARM Access Token
         run: |
           RESPONSE=$(curl -s -X POST \
-            "${{secrets.ARM-COGNITO}}" \
+            "${{secrets.ARM_COGNITO_ENDPOINT}}" \
             -H "Content-Type: application/x-www-form-urlencoded" \
-            -u "${{ secrets.COGNITO_CLIENT_ID }}:${{ secrets.COGNITO_CLIENT_SECRET }}" \
+            -u "${{ secrets.ARM_COGNITO_CLIENTID }}:${{ secrets.ARM_COGNITO_CLIENTSECRET }}" \
             --data-urlencode "grant_type=client_credentials" \
-            --data-urlencode "scope=bridge-api/arm-admin bridge-api/arm-register-release bridge-api/arm-request-approval")
+            --data-urlencode "scope=bridge-api/arm-register-release")
 
           TOKEN=$(echo "$RESPONSE" | jq -r '.access_token')
 
