@@ -38,7 +38,7 @@ jobs:
       
       - name: Register Release
         run: |
-          curl -X POST \
+          RESPONSE=$(curl -X POST \
             "https://att0c36204.execute-api.us-east-1.amazonaws.com/prod/arm/register/release" \
             -H "Authorization: Bearer $ARM_TOKEN" \
             -H "Content-Type: application/json" \
@@ -58,7 +58,16 @@ jobs:
                 "backout_plan": "backout plan",
                 "risk_impact_analysis": "Risk impact analysis"
               }
-            }'
+            }')
+
+            RELEASE_ID=$(echo "$RESPONSE" | jq -r '.release_id')
+            if [ "$RELEASE_ID" = "null" ] || [ -z "$RELEASE_ID" ]; then
+              echo "Failed to register ARM release"
+              echo "$RESPONSE"
+              exit 1
+            fi
+            
+            echo "release_tag=$RELEASE_ID" >> $GITHUB_OUTPUT
       # - name: Validate input
       #   id: vars
       #   run: |
