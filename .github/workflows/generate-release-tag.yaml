@@ -20,7 +20,7 @@ jobs:
       - name: Get ARM Access Token
         run: |
           RESPONSE=$(curl -s -X POST \
-            "https://bridge-m2m-prod.auth.us-east-1.amazoncognito.com/oauth2/token" \
+            "${{secrets.ARM-COGNITO}}" \
             -H "Content-Type: application/x-www-form-urlencoded" \
             -u "${{ secrets.COGNITO_CLIENT_ID }}:${{ secrets.COGNITO_CLIENT_SECRET }}" \
             --data-urlencode "grant_type=client_credentials" \
@@ -39,7 +39,7 @@ jobs:
       - name: Register Release
         run: |
           RESPONSE=$(curl -X POST \
-            "https://att0c36204.execute-api.us-east-1.amazonaws.com/prod/arm/register/release" \
+            "${{secrets.ARM_HOST}}/prod/arm/register/release" \
             -H "Authorization: Bearer $ARM_TOKEN" \
             -H "Content-Type: application/json" \
             -d '{
