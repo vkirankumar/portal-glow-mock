@@ -3,38 +3,18 @@ name: Deploy to prod
 on:
   workflow_dispatch:
     inputs:
-      description:
+      short_description:
         description: "ServiceNow short description"
         type: string
         required: true
       planned_startdate:
-        description: "Expected start date and time [UTC] the release is planned for. If slated during a maintenence window, please specify."
+        description: "Planned Start Date Time (UTC), Format: YYYY-mm-DDTHH:MM:SSZ => 2026-08-12T20:00:00Z"
         type: string
         required: true
       planned_enddate:
-        description: "Expected end date and time [UTC] the release is planned for. If slated during a maintenence window, please specify."
+        description: "Planned End Date Time (UTC), Format: YYYY-mm-DDTHH:MM:SSZ => 2026-08-12T20:30:00Z"
         type: string
         required: true
-      implementation_plan:
-        description: "Please provide an implementation plan"
-        type: string
-        required: true
-        default: "Implementation plan"
-      test_plan:
-        description: "Please provide an test plan"
-        type: string
-        required: true
-        default: "test plan"
-      backot_plan:
-        description: "Please provide an backout plan"
-        type: string
-        required: true
-        default: "Backout plan"
-      risk_impact_analysis:
-        description: "Please provide an risk impact analysis"
-        type: string
-        required: true
-        default: "Impack analysis"
       release_note:
         description: "Confluence link to release notes"
         type: string
