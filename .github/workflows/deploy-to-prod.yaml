@@ -3,19 +3,43 @@ name: Deploy to prod
 on:
   workflow_dispatch:
     inputs:
-      cr:
-        description: "ServiceNow change request number"
+      description:
+        description: "ServiceNow short description"
         type: string
         required: true
-        default: "CHR1234"
+      planned_startdate:
+        description: "Expected start date and time [UTC] the release is planned for. If slated during a maintenence window, please specify."
+        type: string
+        required: true
+      planned_enddate:
+        description: "Expected end date and time [UTC] the release is planned for. If slated during a maintenence window, please specify."
+        type: string
+        required: true
+      implementation_plan:
+        description: "Please provide an implementation plan"
+        type: string
+        required: true
+        default: "Implementation plan"
+      test_plan:
+        description: "Please provide an test plan"
+        type: string
+        required: true
+        default: "test plan"
+      backot_plan:
+        description: "Please provide an backout plan"
+        type: string
+        required: true
+        default: "Backout plan"
+      risk_impact_analysis:
+        description: "Please provide an risk impact analysis"
+        type: string
+        required: true
+        default: "Impack analysis"
       release_note:
         description: "Confluence link to release notes"
         type: string
         required: true
         default: "https://confluence.odido.nl/release_note.html"
-      jira_release:
-        description: "Jira release"
-        type: string
 
 jobs:
   generate-release-tag:
