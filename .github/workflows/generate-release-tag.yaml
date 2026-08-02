@@ -18,25 +18,47 @@ jobs:
         with:
           fetch-depth: 0
       - name: Get ARM Access Token
-        id: arm_token
         run: |
-          TOKEN=$(curl -s -X POST \
+          RESPONSE=$(curl -s -X POST \
             "https://bridge-m2m-prod.auth.us-east-1.amazoncognito.com/oauth2/token" \
             -H "Content-Type: application/x-www-form-urlencoded" \
             -u "${{ secrets.COGNITO_CLIENT_ID }}:${{ secrets.COGNITO_CLIENT_SECRET }}" \
-            -d "grant_type=client_credentials" \
-            -d "scope=bridge-api/arm-admin bridge-api/arm-register-release bridge-api/arm-request-approval" \
-            | jq -r '.access_token')
-      
+            --data-urlencode "grant_type=client_credentials" \
+            --data-urlencode "scope=bridge-api/arm-admin bridge-api/arm-register-release bridge-api/arm-request-approval")
+
+          TOKEN=$(echo "$RESPONSE" | jq -r '.access_token')
+
+          if [ "$TOKEN" = "null" ] || [ -z "$TOKEN" ]; then
+            echo "Failed to obtain access token"
+            echo "$RESPONSE"
+            exit 1
+          fi
+
           echo "ARM_TOKEN=$TOKEN" >> $GITHUB_ENV
       
       - name: Register Release
         run: |
-          curl \
+          curl -X POST \
+            "https://att0c36204.execute-api.us-east-1.amazonaws.com/prod/arm/register/release" \
             -H "Authorization: Bearer $ARM_TOKEN" \
             -H "Content-Type: application/json" \
-            -d @release.json \
-            https://api.arm.company.com/register-release
+            -d '{
+              "application_name": "Glow-Portals",
+              "arm_environment": "PROD",
+              "requested_by": "kiran",
+              "servicenow_change": {
+                "planned_startdate": "2026-07-31T10:00:00Z",
+                "planned_enddate": "2026-07-31T10:30:00Z",
+                "time_zone": "Europe/Amsterdam",
+                "users_affected": "<1000",
+                "short_description": "A mock release",
+                "description": "A detailed description of the release.",
+                "implementation_plan": "implementation plan",
+                "test_plan": "test plan",
+                "backout_plan": "backout plan",
+                "risk_impact_analysis": "Risk impact analysis"
+              }
+            }'
       # - name: Validate input
       #   id: vars
       #   run: |
