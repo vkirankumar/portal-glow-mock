@@ -2,16 +2,37 @@ name: Generate release tag
 
 on:
   workflow_call:
+    inputs:
+      short_description:
+        type: string
+        required: true
+      planned_startdate:
+        type: string
+        required: true
+      planned_enddate:
+        type: string
+        required: true
+      release_note:
+        type: string
+        required: true
+      environment:
+        type: string
+        required: true
+        default: "PROD"
     outputs:
       release_tag:
         description: 'The unique release tag'
         value: ${{ jobs.generate-tag.outputs.release_tag }}
+      release_id:
+        description: 'The unique release ID'
+        value: ${{ jobs.generate-tag.outputs.release_id }}
 
 jobs:
   generate-tag:
     runs-on: ubuntu-latest
     outputs:
       release_tag: ${{ steps.vars.outputs.release_tag }}
+      release_id: ${{ steps.vars.outputs.release_id }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -37,6 +58,7 @@ jobs:
           echo "ARM_TOKEN=$TOKEN" >> $GITHUB_ENV
       
       - name: Register Release
+        id: vars
         run: |
           RESPONSE=$(curl -X POST \
             "${{secrets.ARM_HOST}}/prod/arm/register/release" \
@@ -44,15 +66,15 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{
               "application_name": "Glow-Portals",
-              "arm_environment": "PROD",
+              "arm_environment": "${{ inputs.environment }}",
               "requested_by": "kiran",
               "servicenow_change": {
-                "planned_startdate": "2026-07-31T10:00:00Z",
-                "planned_enddate": "2026-07-31T10:30:00Z",
+                "planned_startdate": "${{ inputs.planned_startdate }}",
+                "planned_enddate": "${{ inputs.planned_enddate }}",
                 "time_zone": "Europe/Amsterdam",
                 "users_affected": "<1000",
-                "short_description": "A mock release",
-                "description": "A detailed description of the release.",
+                "short_description": "${{ inputs.short_description }}",
+                "description": "${{ inputs.release_note }}",
                 "implementation_plan": "implementation plan",
                 "test_plan": "test plan",
                 "backout_plan": "backout plan",
@@ -60,14 +82,20 @@ jobs:
               }
             }')
 
-            RELEASE_ID=$(echo "$RESPONSE" | jq -r '.release_id')
-            if [ "$RELEASE_ID" = "null" ] || [ -z "$RELEASE_ID" ]; then
+            release_id=$(echo "$RESPONSE" | jq -r '.release_id')
+            if [ "$release_id" = "null" ] || [ -z "$release_id" ]; then
               echo "Failed to register ARM release"
               echo "$RESPONSE"
               exit 1
             fi
-            
-            echo "release_tag=$RELEASE_ID" >> $GITHUB_OUTPUT
+          
+            echo "release_id=$release_id" >> $GITHUB_OUTPUT
+            FULL_HASH=$(git rev-parse --short HEAD)
+            echo "release_tag=$FULL_HASH" >> $GITHUB_OUTPUT
+
+            echo "Generated release ID: $release_id"
+            echo "Generated release tag: $release_tag"
+
       # - name: Validate input
       #   id: vars
       #   run: |
@@ -88,8 +116,8 @@ jobs:
       #         release_id=$(echo "$response" | jq -r '.release_id')
       #         echo "Generated release ID: $release_id"
       #         echo "release_tag=$release_id" >> $GITHUB_OUTPUT
-      #       # FULL_HASH=$(git rev-parse --short HEAD)
-      #       # UNIQUE_ID=_${{ github.run_id }}
+            # FULL_HASH=$(git rev-parse --short HEAD)
+            # UNIQUE_ID=_${{ github.run_id }}
             
-      #       # echo "release_tag=$FULL_HASH$UNIQUE_ID" >> $GITHUB_OUTPUT
+            # echo "release_tag=$FULL_HASH$UNIQUE_ID" >> $GITHUB_OUTPUT
 

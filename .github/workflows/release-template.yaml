@@ -1,0 +1,57 @@
+name: Generic release workflow template
+
+on:
+  workflow_call:
+    inputs:
+      env:
+        type: string
+        required: true
+      build_script_path:
+        type: string
+        required: true
+      test_script_path:
+        type: string
+        required: true
+      isTest_Required:
+        type: boolean
+        required: true
+
+
+jobs:
+  generate-release-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: generate release tag
+        id: generate_release_tag
+        run: |
+              response=$(curl -X POST \
+              -H "Content-Type: application/json" \
+              https://yfoa5flvfk.execute-api.us-east-1.amazonaws.com/staging/generate-release-id \
+              -d '{
+                  "platform": "github",
+                  "env": "${{ inputs.env }}",
+                  "repo": "${{ github.event.repository.name }}"
+              }')
+              echo "Response: $response"
+              status=$(echo "$response" | jq -r '.status')
+              if [ "$status" -ne 200 ]; then
+                echo "Error: API call failed with status $status"
+                exit 1
+              fi
+              release_id=$(echo "$response" | jq -r '.release_id')
+              echo "Generated release ID: $release_id"
+              echo "release_tag=$release_id" >> $GITHUB_OUTPUT
+
+    build-publish-docker:
+      needs: generate-release-tag
+      runs-on: ubuntu-latest
+      steps:
+        - name: Check out code
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+
+        - name: Run build and publish script
+          run: |
+            chmod +x ${{ inputs.build_script_path }}
+            ${{ inputs.build_script_path }} ${{ needs.generate-release-tag.outputs.release_tag }}
