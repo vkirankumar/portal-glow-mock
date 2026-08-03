@@ -38,6 +38,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          
       - name: Get ARM Access Token
         run: |
           RESPONSE=$(curl -s -X POST \
@@ -67,7 +68,7 @@ jobs:
             -d '{
               "application_name": "Glow-Portals",
               "arm_environment": "${{ inputs.environment }}",
-              "requested_by": "kiran",
+              "requested_by": ${{ github.actor }},
               "servicenow_change": {
                 "planned_startdate": "${{ inputs.planned_startdate }}",
                 "planned_enddate": "${{ inputs.planned_enddate }}",
@@ -94,7 +95,7 @@ jobs:
             echo "release_tag=$FULL_HASH" >> $GITHUB_OUTPUT
 
             echo "Generated release ID: $release_id"
-            echo "Generated release tag: $release_tag"
+            echo "Generated release tag: $FULL_HASH"
 
       # - name: Validate input
       #   id: vars
