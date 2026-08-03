@@ -7,14 +7,17 @@ on:
         description: "ServiceNow short description"
         type: string
         required: true
+        default: "Test ARM Deploy - Glow Portals"
       planned_startdate:
         description: "Planned Start Date Time (UTC), Format: YYYY-mm-DDTHH:MM:SSZ => 2026-08-12T20:00:00Z"
         type: string
         required: true
+        default: "2026-08-12T20:00:00Z"
       planned_enddate:
         description: "Planned End Date Time (UTC), Format: YYYY-mm-DDTHH:MM:SSZ => 2026-08-12T20:30:00Z"
         type: string
         required: true
+        default: "2026-08-12T20:30:00Z"
       environment:
         description: "Environment to deploy to"
         type: choice
