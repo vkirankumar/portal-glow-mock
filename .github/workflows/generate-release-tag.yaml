@@ -68,7 +68,7 @@ jobs:
             -d '{
               "application_name": "Glow-Portals",
               "arm_environment": "${{ inputs.environment }}",
-              "requested_by": ${{ github.actor }},
+              "requested_by": "${{ github.actor }}",
               "servicenow_change": {
                 "planned_startdate": "${{ inputs.planned_startdate }}",
                 "planned_enddate": "${{ inputs.planned_enddate }}",
