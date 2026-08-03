@@ -42,7 +42,7 @@ jobs:
               echo "Generated release ID: $release_id"
               echo "release_tag=$release_id" >> $GITHUB_OUTPUT
 
-    build-publish-docker:
+  build-publish-docker:
       needs: generate-release-tag
       runs-on: ubuntu-latest
       steps:
