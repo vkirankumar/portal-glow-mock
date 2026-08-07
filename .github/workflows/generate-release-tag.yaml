@@ -22,11 +22,11 @@ on:
       change_type:
         type: string
         required: true
-        default: "Normal"
+        default: "NORMAL"
       change_priority:
         type: string
         required: true
-        default: "Major"
+        default: "MAJOR"
     outputs:
       release_tag:
         description: 'The unique release tag'
