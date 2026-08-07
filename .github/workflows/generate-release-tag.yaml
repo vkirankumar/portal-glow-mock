@@ -19,6 +19,14 @@ on:
         type: string
         required: true
         default: "PROD"
+      change_type:
+        type: string
+        required: true
+        default: "Normal"
+      change_priority:
+        type: string
+        required: true
+        default: "Major"
     outputs:
       release_tag:
         description: 'The unique release tag'
@@ -79,7 +87,9 @@ jobs:
                 "implementation_plan": "implementation plan",
                 "test_plan": "test plan",
                 "backout_plan": "backout plan",
-                "risk_impact_analysis": "Risk impact analysis"
+                "risk_impact_analysis": "Risk impact analysis",
+                "type": ${{ inputs.change_type }}
+                "priority": ${{ inputs.change_priority }}
               }
             }')
 

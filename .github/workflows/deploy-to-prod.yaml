@@ -26,6 +26,23 @@ on:
         options:
           - PROD
           - DEV
+      change_type:
+        description: "Servicenow change type"
+        type: choice
+        required: true
+        default: "Normal"
+        options:
+          - Normal
+          - Emergency
+      change_priority:
+        description: "Servicenow change priority"
+        type: choice
+        required: true
+        default: "Major"
+        options:
+          - Significant
+          - Major
+          - Minor
       release_note:
         description: "Confluence link to release notes"
         type: string
@@ -41,6 +58,8 @@ jobs:
       planned_enddate: ${{ inputs.planned_enddate }}
       release_note: ${{ inputs.release_note }}
       environment: ${{ inputs.environment }}
+      change_type: ${{ inputs.change_type }}
+      change_priority: ${{ inputs.change_priority }}
     secrets: inherit
 
   build-publish-docker:
