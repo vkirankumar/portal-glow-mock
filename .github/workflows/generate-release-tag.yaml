@@ -74,7 +74,7 @@ jobs:
             -H "Authorization: Bearer $ARM_TOKEN" \
             -H "Content-Type: application/json" \
             -d '{
-              "application_name": "Glow-Portals",
+              "application_name": "Portals",
               "arm_environment": "${{ inputs.environment }}",
               "requested_by": "${{ github.actor }}",
               "servicenow_change": {
