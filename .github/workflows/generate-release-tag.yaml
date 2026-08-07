@@ -22,11 +22,9 @@ on:
       change_type:
         type: string
         required: true
-        default: "NORMAL"
       change_priority:
         type: string
         required: true
-        default: "MAJOR"
     outputs:
       release_tag:
         description: 'The unique release tag'
@@ -69,11 +67,7 @@ jobs:
       - name: Register Release
         id: vars
         run: |
-          RESPONSE=$(curl -X POST \
-            "${{secrets.ARM_HOST}}/prod/arm/register/release" \
-            -H "Authorization: Bearer $ARM_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{
+          BODY = '{
               "application_name": "Portals",
               "arm_environment": "${{ inputs.environment }}",
               "requested_by": "${{ github.actor }}",
@@ -91,7 +85,13 @@ jobs:
                 "type": ${{ inputs.change_type }}
                 "priority": ${{ inputs.change_priority }}
               }
-            }')
+            }'
+          echo "Body: $BODY"
+          RESPONSE=$(curl -X POST \
+            "${{secrets.ARM_HOST}}/prod/arm/register/release" \
+            -H "Authorization: Bearer $ARM_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d BODY)
 
             release_id=$(echo "$RESPONSE" | jq -r '.release_id')
             if [ "$release_id" = "null" ] || [ -z "$release_id" ]; then
