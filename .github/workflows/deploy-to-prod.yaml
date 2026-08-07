@@ -32,17 +32,17 @@ on:
         required: true
         default: "Normal"
         options:
-          - Normal
-          - Emergency
+          - NORMAL
+          - EMERGENCY
       change_priority:
         description: "Servicenow change priority"
         type: choice
         required: true
         default: "Major"
         options:
-          - Significant
-          - Major
-          - Minor
+          - SIGNIFICANT
+          - MAJOR
+          - MINOR
       release_note:
         description: "Confluence link to release notes"
         type: string
