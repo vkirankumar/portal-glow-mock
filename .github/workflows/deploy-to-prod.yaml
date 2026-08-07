@@ -30,7 +30,7 @@ on:
         description: "Servicenow change type"
         type: choice
         required: true
-        default: "Normal"
+        default: "NORMAL"
         options:
           - NORMAL
           - EMERGENCY
@@ -38,10 +38,10 @@ on:
         description: "Servicenow change priority"
         type: choice
         required: true
-        default: "Major"
+        default: "MAJOR"
         options:
-          - SIGNIFICANT
           - MAJOR
+          - SIGNIFICANT
           - MINOR
       release_note:
         description: "Confluence link to release notes"
