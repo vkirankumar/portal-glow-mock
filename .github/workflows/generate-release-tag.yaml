@@ -86,7 +86,7 @@ jobs:
                 "test_plan": "test plan",
                 "backout_plan": "backout plan",
                 "risk_impact_analysis": "Risk impact analysis",
-                "type": "${{ inputs.change_type }}"
+                "type": "${{ inputs.change_type }}",
                 "priority": "${{ inputs.change_priority }}"
               }
             }')
