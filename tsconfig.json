@@ -2,7 +2,7 @@
 {
   "compilerOptions": {
     /* Modern JavaScript & Browser Compatibility: */
-    "target": "ESNext", // Uses the latest ECMAScript features for modern JavaScript support
+    "target": "ESNext", // Usess the latest ECMAScript features for modern JavaScript support
 
     "allowJs": true,
     "checkJs": true,
