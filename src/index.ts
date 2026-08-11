@@ -17,6 +17,7 @@ app.get("/health", (req, res) => {
     res.status(200);
 });
 
+// Test deployment to PROD
 app.get("/", (req, res) => {
     res.setHeader('Content-Type', 'text/html');
     res.sendFile('/index.html', { root: __dirname });
