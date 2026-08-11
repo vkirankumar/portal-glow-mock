@@ -17,8 +17,8 @@ app.get("/health", (req, res) => {
     res.status(200);
 });
 
-// Test deployment to PROD
 app.get("/", (req, res) => {
+    console.log("Added a new auth feature");
     res.setHeader('Content-Type', 'text/html');
     res.sendFile('/index.html', { root: __dirname });
 });
