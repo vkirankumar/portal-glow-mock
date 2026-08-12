@@ -18,7 +18,7 @@ app.get("/health", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-    console.log("Added a new auth feature");
+    console.log("Added new auth feature");
     res.setHeader('Content-Type', 'text/html');
     res.sendFile('/index.html', { root: __dirname });
 });
