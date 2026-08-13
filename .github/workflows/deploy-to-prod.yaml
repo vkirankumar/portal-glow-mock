@@ -77,7 +77,11 @@ jobs:
       release_note: ${{ inputs.release_note }}
       environment: ${{ inputs.environment }}
       change_type: ${{ inputs.change_type }}
-      change_priority: ${{ inputs.change_priority }}
+      urgency: ${{ inputs.urgency }}
+      fixed_incident: ${{ inputs.fixed_incident }}
+      outage_startdate: ${{ inputs.outage_startdate }}
+      outage_enddate: ${{ inputs.outage_enddate }}
+      customer_affected: ${{ inputs.customer_affected }}
     secrets: inherit
 
   build-publish-docker:
