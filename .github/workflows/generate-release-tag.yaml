@@ -25,6 +25,18 @@ on:
       change_priority:
         type: string
         required: true
+      urgency:
+        type: string
+        required: true
+      fixed_incident:
+        type: string
+      outage_startdate:
+        type: string
+      outage_enddate:
+        type: string
+      customer_affected:
+        type: string
+        required: true
     outputs:
       release_tag:
         description: 'The unique release tag'
@@ -79,15 +91,18 @@ jobs:
                 "planned_startdate": "${{ inputs.planned_startdate }}",
                 "planned_enddate": "${{ inputs.planned_enddate }}",
                 "time_zone": "Europe/Amsterdam",
-                "users_affected": "<1000",
                 "short_description": "${{ inputs.short_description }}",
                 "description": "${{ inputs.release_note }}",
                 "implementation_plan": "implementation plan",
                 "test_plan": "test plan",
                 "backout_plan": "backout plan",
                 "risk_impact_analysis": "Risk impact analysis",
-                "type": "${{ inputs.change_type }}",
-                "priority": "${{ inputs.change_priority }}"
+                "change_type": "${{ inputs.change_type }}",
+                "urgency": "${{ inputs.urgency }}",
+                "customer_affected": "${{ inputs.customer_affected }}",
+                "fixed_incident": "${{ inputs.fixed_incident }}",
+                "outage_startdate": "${{ inputs.outage_startdate }}",
+                "outage_enddate": "${{ inputs.outage_enddate }}"
               }
             }')
 
