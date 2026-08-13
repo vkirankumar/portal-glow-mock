@@ -75,82 +75,97 @@ jobs:
       
       - name: Register Release
         id: vars
+        env:
+          ARM_HOST: ${{ secrets.ARM_HOST }}
+          ARM_TOKEN: ${{ env.ARM_TOKEN }}
+
+          APPLICATION_NAME: "Portals-Glow"
+          ARM_ENVIRONMENT: ${{ inputs.environment }}
+          REQUESTED_BY: ${{ github.actor }}
+
+          PLANNED_STARTDATE: ${{ inputs.planned_startdate }}
+          PLANNED_ENDDATE: ${{ inputs.planned_enddate }}
+          SHORT_DESCRIPTION: ${{ inputs.short_description }}
+          RELEASE_NOTE: ${{ inputs.release_note }}
+
+          CHANGE_TYPE: ${{ inputs.change_type }}
+          URGENCY: ${{ inputs.urgency }}
+          CUSTOMER_AFFECTED: ${{ inputs.customer_affected }}
+
+          FIXED_INCIDENT: ${{ inputs.fixed_incident }}
+          OUTAGE_STARTDATE: ${{ inputs.outage_startdate }}
+          OUTAGE_ENDDATE: ${{ inputs.outage_enddate }}
         run: |
-          # Base ServiceNow change request
-          CHANGE_REQUEST=$(jq -n \
-            --arg planned_startdate "$PLANNED_STARTDATE" \
-            --arg planned_enddate "$PLANNED_ENDDATE" \
-            --arg short_description "$SHORT_DESCRIPTION" \
-            --arg release_note "$RELEASE_NOTE" \
-            --arg change_type "$CHANGE_TYPE" \
-            --arg urgency "$URGENCY" \
-            --arg customer_affected "$CUSTOMER_AFFECTED" \
-            '{
-              planned_startdate: $planned_startdate,
-              planned_enddate: $planned_enddate,
-              time_zone: "Europe/Amsterdam",
-              short_description: $short_description,
-              description: $release_note,
-              implementation_plan: "implementation plan",
-              test_plan: "test plan",
-              backout_plan: "backout plan",
-              risk_impact_analysis: "Risk impact analysis",
-              change_type: $change_type,
-              urgency: $urgency,
-              customer_affected: $customer_affected
-            }')
-
-          # Add fixed incident only when supplied
-          if [ -n "$FIXED_INCIDENT" ]; then
-            CHANGE_REQUEST=$(echo "$CHANGE_REQUEST" | jq \
-              --arg fixed_incident "$FIXED_INCIDENT" \
-              '. + {fixed_incident: $fixed_incident}')
-          fi
-
-          # Outage dates are required only for OUTAGE / SERVICE_DEGRADED
-          if [ "$URGENCY" = "OUTAGE" ] || [ "$URGENCY" = "SERVICE_DEGRADED" ]; then
-
-            if [ -z "$OUTAGE_STARTDATE" ] || [ -z "$OUTAGE_ENDDATE" ]; then
-              echo "ERROR: outage_startdate and outage_enddate are required when urgency is $URGENCY"
-              exit 1
-            fi
-
-            CHANGE_REQUEST=$(echo "$CHANGE_REQUEST" | jq \
-              --arg outage_startdate "$OUTAGE_STARTDATE" \
-              --arg outage_enddate "$OUTAGE_ENDDATE" \
-              '. + {
-                outage_startdate: $outage_startdate,
-                outage_enddate: $outage_enddate
-              }')
-          fi
-
-          # Build complete ARM request
           REQUEST_BODY=$(jq -n \
             --arg application_name "$APPLICATION_NAME" \
             --arg arm_environment "$ARM_ENVIRONMENT" \
             --arg requested_by "$REQUESTED_BY" \
-            --argjson servicenow_change "$CHANGE_REQUEST" \
-            '{
+            --arg planned_startdate "$PLANNED_STARTDATE" \
+            --arg planned_enddate "$PLANNED_ENDDATE" \
+            --arg time_zone "Europe/Amsterdam" \
+            --arg short_description "$SHORT_DESCRIPTION" \
+            --arg description "$RELEASE_NOTE" \
+            --arg implementation_plan "implementation plan" \
+            --arg test_plan "test plan" \
+            --arg backout_plan "backout plan" \
+            --arg risk_impact_analysis "Risk impact analysis" \
+            --arg change_type "$CHANGE_TYPE" \
+            --arg urgency "$URGENCY" \
+            --arg customer_affected "$CUSTOMER_AFFECTED" \
+            --arg fixed_incident "$FIXED_INCIDENT" \
+            --arg outage_startdate "$OUTAGE_STARTDATE" \
+            --arg outage_enddate "$OUTAGE_ENDDATE" \
+            '
+            {
               application_name: $application_name,
               arm_environment: $arm_environment,
               requested_by: $requested_by,
-              servicenow_change: $servicenow_change
-            }')
 
-          echo "Registering ARM release..."
+              servicenow_change: {
+                planned_startdate: $planned_startdate,
+                planned_enddate: $planned_enddate,
+                time_zone: $time_zone,
+                short_description: $short_description,
+                description: $description,
+                implementation_plan: $implementation_plan,
+                test_plan: $test_plan,
+                backout_plan: $backout_plan,
+                risk_impact_analysis: $risk_impact_analysis,
+                change_type: $change_type,
+                urgency: $urgency,
+                customer_affected: $customer_affected
+              }
+            }
+
+            # Add fixed incident only when supplied
+            | if $fixed_incident != ""
+              then .servicenow_change.fixed_incident = $fixed_incident
+              else .
+              end
+
+            # Add outage dates only for outage/service degraded
+            | if $urgency == "OUTAGE" or $urgency == "SERVICE_DEGRADED"
+              then
+                .servicenow_change.outage_startdate = $outage_startdate |
+                .servicenow_change.outage_enddate = $outage_enddate
+              else .
+              end
+            ')
+
+          echo "Request body:"
           echo "$REQUEST_BODY" | jq .
 
           RESPONSE=$(curl -sS -X POST \
-            "${{ secrets.ARM_HOST }}/prod/arm/register/release" \
+            "$ARM_HOST/prod/arm/register/release" \
             -H "Authorization: Bearer $ARM_TOKEN" \
             -H "Content-Type: application/json" \
             -d "$REQUEST_BODY")
 
           echo "Response: $RESPONSE"
 
-          release_id=$(echo "$RESPONSE" | jq -r '.release_id // empty')
+          release_id=$(echo "$RESPONSE" | jq -r '.release_id')
 
-          if [ -z "$release_id" ]; then
+          if [ "$release_id" = "null" ] || [ -z "$release_id" ]; then
             echo "Failed to register ARM release"
             echo "$RESPONSE"
             exit 1
@@ -159,6 +174,7 @@ jobs:
           echo "release_id=$release_id" >> "$GITHUB_OUTPUT"
 
           FULL_HASH=$(git rev-parse --short HEAD)
+
           echo "release_tag=$FULL_HASH" >> "$GITHUB_OUTPUT"
 
           echo "Generated release ID: $release_id"
