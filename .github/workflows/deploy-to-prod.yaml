@@ -26,28 +26,46 @@ on:
         options:
           - PROD
           - DEV
+      urgency:
+        description: "Service Impact"
+        type: choice
+        required: true
+        default: "NO_SERVICE_IMPACT"
+        options:
+          - OUTAGE
+          - SERVICE_DEGRADED
+          - NO_SERVICE_IMPACT
       change_type:
         description: "Servicenow change type"
         type: choice
         required: true
-        default: "NORMAL"
+        default: "normal"
         options:
-          - NORMAL
-          - EMERGENCY
-      change_priority:
-        description: "Servicenow change priority"
+          - normal
+          - emergency
+      customer_affected:
+        description: "Customers affected"
         type: choice
         required: true
-        default: "MAJOR"
+        default: "1"
         options:
-          - MAJOR
-          - SIGNIFICANT
-          - MINOR
+          - "1"
+          - "1-50"
+          - ">50"
       release_note:
         description: "Confluence link to release notes"
         type: string
         required: true
         default: "https://confluence.odido.nl/release_note.html"
+      fixed_incident:
+        description: "Incident fixed by this change"
+        type: string
+      outage_startdate:
+        description: "If the incident caused an outage, Format: YYYY-mm-DDTHH:MM:SSZ => 2026-08-12T20:00:00Z"
+        type: string
+      outage_enddate:
+        description: "If the incident caused an outage, Format: YYYY-mm-DDTHH:MM:SSZ => 2026-08-12T20:00:00Z"
+        type: string
 
 jobs:
   generate-release-tag:
