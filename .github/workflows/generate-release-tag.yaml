@@ -22,9 +22,6 @@ on:
       change_type:
         type: string
         required: true
-      change_priority:
-        type: string
-        required: true
       urgency:
         type: string
         required: true
