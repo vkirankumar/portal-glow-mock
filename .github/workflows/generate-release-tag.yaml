@@ -25,7 +25,7 @@ on:
       urgency:
         type: string
         required: true
-      fixed_incident:
+      fixed_incidents:
         type: string
       outage_startdate:
         type: string
