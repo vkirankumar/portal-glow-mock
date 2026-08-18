@@ -47,11 +47,11 @@ on:
         description: "Customers affected"
         type: choice
         required: true
-        default: "1"
+        default: ">10000"
         options:
-          - "1"
-          - "1-50"
-          - ">50"
+          - "<1000"
+          - "1000-10000"
+          - ">10000"
       release_note:
         description: "Confluence link to release notes"
         type: string
