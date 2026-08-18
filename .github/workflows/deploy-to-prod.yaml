@@ -57,8 +57,8 @@ on:
         type: string
         required: true
         default: "https://confluence.odido.nl/release_note.html"
-      fixed_incident:
-        description: "Incident fixed by this change"
+      fixed_incidents:
+        description: "Incidents fixed by this change, a comma seperated string if multiple values."
         type: string
       outage_startdate:
         description: "If the incident caused an outage, Format: YYYY-mm-DDTHH:MM:SSZ => 2026-08-12T20:00:00Z"
@@ -78,7 +78,7 @@ jobs:
       environment: ${{ inputs.environment }}
       change_type: ${{ inputs.change_type }}
       urgency: ${{ inputs.urgency }}
-      fixed_incidents: ${{ inputs.fixed_incident }}
+      fixed_incidents: ${{ inputs.fixed_incidents }}
       outage_startdate: ${{ inputs.outage_startdate }}
       outage_enddate: ${{ inputs.outage_enddate }}
       customer_affected: ${{ inputs.customer_affected }}
