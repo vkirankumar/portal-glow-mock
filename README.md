@@ -1,2 +1,2 @@
 # portal-glow-mock
-    Portal Glow React Application - Github Actions CI/CD - 123
+    Portal Glow React Application - Github Actions CI/CD
